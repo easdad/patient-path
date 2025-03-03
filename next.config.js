@@ -3,17 +3,13 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    unoptimized: true,
     domains: [],
   },
-  output: 'export',
   experimental: {
     appDir: true,
+    serverActions: true
   },
-  // Remove server actions since they won't work in static export
-  // experimental: {
-  //   serverActions: true
-  // },
+  output: 'standalone',
 }
 
 module.exports = nextConfig 
