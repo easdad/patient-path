@@ -1,0 +1,25 @@
+name: Deploy PatientPath to VPS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Deploy to PatientPath VPS
+      uses: appleboy/ssh-action@master
+      with:
+        host: patientpath.org
+        username: root
+        key: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+        script: |
+          cd /var/www/patient-path
+          git pull origin main
+          cd backend && npm install
+          cd ../frontend && npm install && npm run build
+          cd ..
+          pm2 restart patient-path-api || pm2 start ecosystem.config.js
