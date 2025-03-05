@@ -40,14 +40,15 @@
 /* Maintenance Page Styles */
 .maintenance-page {
   font-family: 'Roboto', sans-serif;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  height: 100vh;
+  background: linear-gradient(135deg, #9c27b0, #673ab7) !important;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  padding: 80px 20px 40px;
+  position: relative;
   color: #333;
   text-align: center;
-  padding: 0 20px;
 }
 
 .container {
@@ -311,7 +312,7 @@ h2 {
 
 /* DRAMATIC VISUAL CHANGE STYLES */
 .new-theme {
-  background: linear-gradient(135deg, #43a047, #1b5e20) !important;
+  background: linear-gradient(135deg, #6a1b9a, #4a148c) !important;
 }
 
 .new-banner {
