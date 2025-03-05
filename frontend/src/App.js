@@ -6,16 +6,16 @@ function App() {
   const launchDate = new Date();
   launchDate.setDate(launchDate.getDate() + 30);
   
-  // Deployment timestamp - this will change with each deployment
-  const deploymentTime = new Date().toISOString();
-  const buildVersion = "FINAL VERIFICATION v" + (Math.floor(Math.random() * 9000) + 1000);
-  
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0
   });
+  
+  // Newsletter signup state
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
   
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -37,143 +37,236 @@ function App() {
     return () => clearInterval(timer);
   }, []);
   
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (email) {
+      // In a real application, this would send the email to a server
+      setSubscribed(true);
+      setEmail('');
+      setTimeout(() => setSubscribed(false), 5000);
+    }
+  };
+  
   return (
-    <div className="maintenance-page new-theme">
-      <div className="update-banner new-banner">
-        🎯 FINAL VERIFICATION TEST - {buildVersion} 🎯
-      </div>
+    <div className="patient-path-app">
+      <header className="main-header">
+        <div className="logo-container">
+          <div className="logo">
+            <span className="logo-icon">+</span>
+            <span className="logo-text">Patient Path</span>
+          </div>
+        </div>
+        <nav className="main-nav">
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
       
-      <div className="container new-container">
-        <h1 className="new-title">Patient Path - FINAL TEST!</h1>
-        
-        {/* New notification badge */}
-        <div className="notification-badge">
-          <div className="notification-pulse"></div>
-          <div className="notification-content">
-            <span className="notification-icon">🔔</span>
-            <span className="notification-text">New feature: 3D Deployment Statistics added!</span>
-            <span className="notification-time">{new Date().toLocaleTimeString()}</span>
+      <main>
+        <section className="hero-section">
+          <div className="hero-content">
+            <h1>Transforming Healthcare Coordination</h1>
+            <p className="hero-subtitle">
+              Patient Path connects patients, providers, and caregivers for better health outcomes.
+              Our platform launches soon.
+            </p>
+            
+            <div className="countdown-display">
+              <div className="countdown-item">
+                <span className="countdown-number">{timeLeft.days}</span>
+                <span className="countdown-label">Days</span>
+              </div>
+              <div className="countdown-item">
+                <span className="countdown-number">{timeLeft.hours}</span>
+                <span className="countdown-label">Hours</span>
+              </div>
+              <div className="countdown-item">
+                <span className="countdown-number">{timeLeft.minutes}</span>
+                <span className="countdown-label">Minutes</span>
+              </div>
+              <div className="countdown-item">
+                <span className="countdown-number">{timeLeft.seconds}</span>
+                <span className="countdown-label">Seconds</span>
+              </div>
+            </div>
+            
+            <div className="newsletter-signup">
+              <h3>Get notified when we launch</h3>
+              <form onSubmit={handleSubmit}>
+                <input 
+                  type="email" 
+                  placeholder="Enter your email" 
+                  value={email} 
+                  onChange={handleEmailChange} 
+                  required 
+                />
+                <button type="submit">Notify Me</button>
+              </form>
+              {subscribed && <p className="success-message">Thank you! You'll be notified when we launch.</p>}
+            </div>
           </div>
-        </div>
-        
-        <div className="dramatic-change-notice">
-          <h2>GitHub Actions Workflow Verified!</h2>
-          <p>Auto-deployment is working correctly via GitHub Actions.</p>
-          <p className="deploy-time">Last verified: {new Date().toLocaleString()}</p>
-        </div>
-        
-        <div className="animated-callout">
-          <div className="pulse-circle"></div>
-          <div className="callout-content">
-            <h3>MAJOR UPDATE DETECTED!</h3>
-            <p>This is the final verification test with obvious visual changes.</p>
-            <p>If you see this animated section with rotating borders, the deployment is successful!</p>
+          <div className="hero-image">
+            <div className="image-placeholder">
+              <img 
+                src="https://img.freepik.com/free-vector/healthcare-background-with-medical-symbols-hexagonal-frame_1017-26363.jpg?w=740&t=st=1714007118~exp=1714007718~hmac=0eb9a5b1efde857a8eaeac18e9ed4d1e2afa0f8acb08c1c54e16df675dbab90d" 
+                alt="Healthcare professionals using Patient Path"
+                className="hero-img"
+              />
+            </div>
           </div>
-        </div>
+        </section>
         
-        {/* New 3D Rotating Cube Component */}
-        <div className="cube-container">
-          <h3 className="new-subtitle">Deployment Statistics</h3>
-          <div className="scene">
-            <div className="cube">
-              <div className="cube__face cube__face--front">
-                <div className="cube-content">
-                  <h4>Build Info</h4>
-                  <p>Version: {buildVersion}</p>
-                  <p>Deploy Time: {new Date().toLocaleTimeString()}</p>
-                </div>
+        <section className="features-section" id="features">
+          <h2>How Patient Path Improves Healthcare</h2>
+          <div className="features-grid">
+            <div className="feature-card">
+              <div className="feature-icon">
+                <i className="icon-coordinate">🔄</i>
               </div>
-              <div className="cube__face cube__face--back">
-                <div className="cube-content">
-                  <h4>Server Status</h4>
-                  <p>Environment: Production</p>
-                  <p>Region: US-East</p>
-                </div>
+              <h3>Care Coordination</h3>
+              <p>Seamlessly connect all members of a patient's care team for improved communication and better outcomes.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">
+                <i className="icon-records">📋</i>
               </div>
-              <div className="cube__face cube__face--right">
-                <div className="cube-content">
-                  <h4>Performance</h4>
-                  <p>Load Time: 1.2s</p>
-                  <p>Cache: Enabled</p>
-                </div>
+              <h3>Medical Records</h3>
+              <p>Securely access and share medical records with authorized providers, eliminating redundant tests and procedures.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">
+                <i className="icon-appointment">📅</i>
               </div>
-              <div className="cube__face cube__face--left">
-                <div className="cube-content">
-                  <h4>Tech Stack</h4>
-                  <p>Frontend: React</p>
-                  <p>Backend: Node.js</p>
-                </div>
+              <h3>Appointment Management</h3>
+              <p>Schedule, reschedule, and get reminders for upcoming appointments with any provider in your network.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">
+                <i className="icon-analytics">📊</i>
               </div>
-              <div className="cube__face cube__face--top">
-                <div className="cube-content">
-                  <h4>GitHub</h4>
-                  <p>Commit: {buildVersion.slice(-4)}</p>
-                  <p>Branch: main</p>
-                </div>
+              <h3>Health Analytics</h3>
+              <p>Track health metrics over time and receive personalized insights to improve your wellbeing.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">
+                <i className="icon-medication">💊</i>
               </div>
-              <div className="cube__face cube__face--bottom">
-                <div className="cube-content">
-                  <h4>Next Update</h4>
-                  <p>{timeLeft.days} days</p>
-                  <p>{timeLeft.hours}h {timeLeft.minutes}m</p>
-                </div>
+              <h3>Medication Management</h3>
+              <p>Keep track of prescriptions, dosages, and refills all in one place with automated reminders.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">
+                <i className="icon-telemedicine">🖥️</i>
+              </div>
+              <h3>Telemedicine</h3>
+              <p>Connect with healthcare providers through secure video consultations for non-emergency care.</p>
+            </div>
+          </div>
+        </section>
+        
+        <section className="about-section" id="about">
+          <div className="about-content">
+            <h2>About Patient Path</h2>
+            <p>
+              Patient Path was founded by healthcare professionals who experienced firsthand the fragmentation 
+              in healthcare coordination. Our mission is to create a seamless experience for patients navigating 
+              complex healthcare journeys.
+            </p>
+            <p>
+              Our team combines expertise in healthcare, technology, and user experience design to build a 
+              platform that addresses the real needs of patients and providers alike.
+            </p>
+          </div>
+          <div className="timeline">
+            <div className="timeline-item">
+              <div className="timeline-marker"></div>
+              <div className="timeline-content">
+                <h4>2023 Q4</h4>
+                <p>Research & Development</p>
+              </div>
+            </div>
+            <div className="timeline-item">
+              <div className="timeline-marker"></div>
+              <div className="timeline-content">
+                <h4>2024 Q1</h4>
+                <p>Platform Design</p>
+              </div>
+            </div>
+            <div className="timeline-item">
+              <div className="timeline-marker active"></div>
+              <div className="timeline-content">
+                <h4>2024 Q2</h4>
+                <p>Beta Testing</p>
+              </div>
+            </div>
+            <div className="timeline-item">
+              <div className="timeline-marker"></div>
+              <div className="timeline-content">
+                <h4>2024 Q3</h4>
+                <p>Public Launch</p>
               </div>
             </div>
           </div>
-          <p className="cube-instructions">Hover to rotate the cube</p>
-        </div>
-        
-        <div className="countdown-container">
-          <h3 className="new-subtitle">Launching In:</h3>
-          <div className="countdown hexagon-countdown">
-            <div className="countdown-item hexagon-item">
-              <span className="countdown-number">{timeLeft.days}</span>
-              <span className="countdown-label">Days</span>
+        </section>
+      </main>
+      
+      <footer className="main-footer" id="contact">
+        <div className="footer-content">
+          <div className="footer-logo">
+            <div className="logo">
+              <span className="logo-icon">+</span>
+              <span className="logo-text">Patient Path</span>
             </div>
-            <div className="countdown-item hexagon-item">
-              <span className="countdown-number">{timeLeft.hours}</span>
-              <span className="countdown-label">Hours</span>
+            <p>Transforming healthcare coordination through technology</p>
+          </div>
+          
+          <div className="footer-links">
+            <div className="link-group">
+              <h4>Platform</h4>
+              <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#roadmap">Roadmap</a></li>
+              </ul>
             </div>
-            <div className="countdown-item hexagon-item">
-              <span className="countdown-number">{timeLeft.minutes}</span>
-              <span className="countdown-label">Minutes</span>
+            <div className="link-group">
+              <h4>Company</h4>
+              <ul>
+                <li><a href="#about">Our Team</a></li>
+                <li><a href="#careers">Careers</a></li>
+                <li><a href="#contact">Contact</a></li>
+              </ul>
             </div>
-            <div className="countdown-item hexagon-item">
-              <span className="countdown-number">{timeLeft.seconds}</span>
-              <span className="countdown-label">Seconds</span>
+            <div className="link-group">
+              <h4>Legal</h4>
+              <ul>
+                <li><a href="#privacy">Privacy Policy</a></li>
+                <li><a href="#terms">Terms of Service</a></li>
+                <li><a href="#hipaa">HIPAA Compliance</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="contact-info">
+            <h4>Contact Us</h4>
+            <p><a href="mailto:info@patientpath.com">info@patientpath.com</a></p>
+            <div className="social-icons">
+              <a href="#" className="social-icon">𝕏</a>
+              <a href="#" className="social-icon">ƒ</a>
+              <a href="#" className="social-icon">𝕚𝕟</a>
             </div>
           </div>
         </div>
         
-        <div className="progress-bar new-progress-bar">
-          <div className="progress new-progress"></div>
+        <div className="footer-bottom">
+          <p>&copy; {new Date().getFullYear()} Patient Path, Inc. All rights reserved.</p>
         </div>
-        
-        <div className="features new-features">
-          <div className="feature new-feature">
-            <div className="feature-icon">🏥</div>
-            <h3>Care Coordination</h3>
-            <p>Seamless communication between healthcare providers</p>
-          </div>
-          <div className="feature new-feature">
-            <div className="feature-icon">📱</div>
-            <h3>Patient Portal</h3>
-            <p>Secure access to your medical information</p>
-          </div>
-          <div className="feature new-feature">
-            <div className="feature-icon">📊</div>
-            <h3>Health Analytics</h3>
-            <p>Data-driven insights for better care</p>
-          </div>
-        </div>
-        
-        <p className="new-text">We're working hard to bring you a revolutionary healthcare experience. Check back soon!</p>
-        
-        <div className="contact new-contact">
-          <p>Contact us at <a href="mailto:info@patientpath.com" className="new-link">info@patientpath.com</a></p>
-          <p>© 2023 Patient Path. All rights reserved.</p>
-        </div>
-      </div>
+      </footer>
     </div>
   );
 }
