@@ -415,3 +415,112 @@ h2 {
 .new-link:hover {
   color: #fff176 !important;
 }
+
+/* New animated callout styles */
+.animated-callout {
+  position: relative;
+  background: linear-gradient(45deg, #ff6b6b, #f03a47);
+  border-radius: 15px;
+  padding: 25px;
+  margin: 30px 0;
+  color: white;
+  overflow: hidden;
+  animation: rotate-border 10s linear infinite;
+  box-shadow: 0 5px 25px rgba(255, 107, 107, 0.6);
+}
+
+.animated-callout::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border: 4px dashed white;
+  border-radius: 20px;
+  animation: rotate-border 20s linear infinite reverse;
+  pointer-events: none;
+}
+
+.pulse-circle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  animation: pulse-animation 2s infinite;
+}
+
+.callout-content {
+  position: relative;
+  z-index: 1;
+}
+
+.callout-content h3 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Hexagon countdown styles */
+.hexagon-countdown {
+  margin-top: 20px;
+}
+
+.hexagon-item {
+  position: relative;
+  background: linear-gradient(135deg, #ffa600, #ff6b6b) !important;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  padding: 30px 20px !important;
+  margin: 0 15px;
+  transition: transform 0.3s ease;
+  animation: float 3s ease-in-out infinite;
+}
+
+.hexagon-item:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.hexagon-item:nth-child(3) {
+  animation-delay: 1s;
+}
+
+.hexagon-item:nth-child(4) {
+  animation-delay: 1.5s;
+}
+
+.hexagon-item:hover {
+  transform: scale(1.1) rotate(10deg) !important;
+}
+
+/* Additional animations */
+@keyframes rotate-border {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse-animation {
+  0% { transform: scale(0.8); opacity: 1; box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+  70% { transform: scale(1.2); opacity: 0.7; box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { transform: scale(0.8); opacity: 1; box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .hexagon-item {
+    padding: 20px 15px !important;
+    margin: 0 5px;
+  }
+  
+  .callout-content h3 {
+    font-size: 1.4rem;
+  }
+}

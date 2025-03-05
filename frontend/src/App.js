@@ -8,7 +8,7 @@ function App() {
   
   // Deployment timestamp - this will change with each deployment
   const deploymentTime = new Date().toISOString();
-  const buildVersion = "VERIFIED DEPLOYMENT v" + (Math.floor(Math.random() * 9000) + 1000);
+  const buildVersion = "FINAL VERIFICATION v" + (Math.floor(Math.random() * 9000) + 1000);
   
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -40,33 +40,42 @@ function App() {
   return (
     <div className="maintenance-page new-theme">
       <div className="update-banner new-banner">
-        ✅ GITHUB ACTION VERIFICATION - {buildVersion} ✅
+        🎯 FINAL VERIFICATION TEST - {buildVersion} 🎯
       </div>
       
       <div className="container new-container">
-        <h1 className="new-title">Patient Path - WORKFLOW CONFIRMED!</h1>
+        <h1 className="new-title">Patient Path - FINAL TEST!</h1>
         <div className="dramatic-change-notice">
           <h2>GitHub Actions Workflow Verified!</h2>
           <p>Auto-deployment is working correctly via GitHub Actions.</p>
           <p className="deploy-time">Last verified: {new Date().toLocaleString()}</p>
         </div>
         
+        <div className="animated-callout">
+          <div className="pulse-circle"></div>
+          <div className="callout-content">
+            <h3>MAJOR UPDATE DETECTED!</h3>
+            <p>This is the final verification test with obvious visual changes.</p>
+            <p>If you see this animated section with rotating borders, the deployment is successful!</p>
+          </div>
+        </div>
+        
         <div className="countdown-container">
           <h3 className="new-subtitle">Launching In:</h3>
-          <div className="countdown">
-            <div className="countdown-item new-countdown-item">
+          <div className="countdown hexagon-countdown">
+            <div className="countdown-item hexagon-item">
               <span className="countdown-number">{timeLeft.days}</span>
               <span className="countdown-label">Days</span>
             </div>
-            <div className="countdown-item new-countdown-item">
+            <div className="countdown-item hexagon-item">
               <span className="countdown-number">{timeLeft.hours}</span>
               <span className="countdown-label">Hours</span>
             </div>
-            <div className="countdown-item new-countdown-item">
+            <div className="countdown-item hexagon-item">
               <span className="countdown-number">{timeLeft.minutes}</span>
               <span className="countdown-label">Minutes</span>
             </div>
-            <div className="countdown-item new-countdown-item">
+            <div className="countdown-item hexagon-item">
               <span className="countdown-number">{timeLeft.seconds}</span>
               <span className="countdown-label">Seconds</span>
             </div>
