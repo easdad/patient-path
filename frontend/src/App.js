@@ -4,6 +4,9 @@ import './App.css';
 function App() {
   return (
     <div className="maintenance-page">
+      <div className="update-banner">
+        🚀 Auto-Deployment Test - Updated on {new Date().toLocaleString()} 🚀
+      </div>
       <div className="container">
         <h1>Patient Path</h1>
         <h2>Our healthcare coordination platform is currently under development</h2>
