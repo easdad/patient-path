@@ -40,14 +40,14 @@ function App() {
   return (
     <div className="maintenance-page new-theme">
       <div className="update-banner new-banner">
-        💥 DRAMATIC VISUAL CHANGE - {buildVersion} - {deploymentTime} 💥
+        💥 LATEST UPDATE: March 5, 2025 - {buildVersion} 💥
       </div>
       
       <div className="container new-container">
-        <h1 className="new-title">Patient Path - NEW DESIGN!</h1>
+        <h1 className="new-title">Patient Path - FRESH UPDATE!</h1>
         <div className="dramatic-change-notice">
-          <h2>This is a dramatically different design!</h2>
-          <p>If you see this green theme with red countdown boxes, auto-deployment is working!</p>
+          <h2>This page was just updated!</h2>
+          <p>The deployment system is working if you see this message.</p>
           <p className="deploy-time">Deployed: {new Date().toLocaleString()}</p>
         </div>
         
