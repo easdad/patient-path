@@ -36,3 +36,112 @@
     transform: rotate(360deg);
   }
 }
+
+/* Maintenance Page Styles */
+.maintenance-page {
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #333;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.container {
+  max-width: 800px;
+  background-color: white;
+  border-radius: 15px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 1s ease-in;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  color: #4285F4;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 300;
+  margin-bottom: 30px;
+  color: #555;
+}
+
+.progress-bar {
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(to right, #4285F4, #34A853);
+  border-radius: 5px;
+  animation: progress 2s ease-in-out;
+}
+
+.features {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.feature {
+  flex-basis: 30%;
+  margin-bottom: 20px;
+}
+
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #4285F4;
+}
+
+.contact {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.contact a {
+  color: #4285F4;
+  text-decoration: none;
+}
+
+.contact a:hover {
+  text-decoration: underline;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes progress {
+  from { width: 0; }
+  to { width: 40%; }
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 20px;
+  }
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+  .feature {
+    flex-basis: 100%;
+  }
+}
