@@ -229,3 +229,82 @@ h2 {
     font-size: 1.8rem;
   }
 }
+
+.deployment-verification {
+  padding: 20px;
+  margin: 20px auto;
+  background: linear-gradient(45deg, #ff0099, #493240);
+  border: 5px solid yellow;
+  max-width: 80%;
+  border-radius: 15px;
+  box-shadow: 0 0 30px rgba(255, 0, 153, 0.7);
+  color: white;
+  animation: pulse-verification 1.5s infinite alternate;
+  position: relative;
+  z-index: 100;
+}
+
+.verification-content {
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.verification-content h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: yellow;
+  text-shadow: 0 0 10px rgba(255, 255, 0, 0.7);
+}
+
+.verification-id {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  font-family: monospace;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.verification-time {
+  margin-bottom: 15px;
+}
+
+.timestamp {
+  font-family: monospace;
+  font-size: 1.3rem;
+  margin-top: 5px;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  border-radius: 5px;
+  word-break: break-all;
+}
+
+.verification-message {
+  font-size: 1.2rem;
+  margin-top: 15px;
+  color: #ffcc00;
+  font-weight: bold;
+}
+
+@keyframes pulse-verification {
+  from { transform: scale(1); }
+  to { transform: scale(1.03); }
+}
+
+@media (max-width: 600px) {
+  .deployment-verification {
+    max-width: 95%;
+    padding: 10px;
+  }
+  
+  .verification-content h2 {
+    font-size: 1.5rem;
+  }
+  
+  .timestamp {
+    font-size: 1rem;
+  }
+}

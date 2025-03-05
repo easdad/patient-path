@@ -6,6 +6,9 @@ function App() {
   const launchDate = new Date();
   launchDate.setDate(launchDate.getDate() + 30);
   
+  // Deployment timestamp - this will change with each deployment
+  const deploymentTime = new Date().toISOString();
+  
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -38,6 +41,22 @@ function App() {
       <div className="update-banner">
         🚀 Auto-Deployment Test - Updated on {new Date().toLocaleString()} 🚀
       </div>
+      
+      {/* NEW AUTO-DEPLOYMENT VERIFICATION */}
+      <div className="deployment-verification">
+        <div className="verification-content">
+          <h2>AUTO-DEPLOYMENT VERIFICATION</h2>
+          <div className="verification-id">Build ID: {Math.random().toString(36).substring(2, 10).toUpperCase()}</div>
+          <div className="verification-time">
+            <div>Deployment Timestamp:</div>
+            <div className="timestamp">{deploymentTime}</div>
+          </div>
+          <div className="verification-message">
+            If this timestamp changes, auto-deployment is working!
+          </div>
+        </div>
+      </div>
+      
       <div className="container">
         <h1>Patient Path</h1>
         <h2>Our healthcare coordination platform is currently under development</h2>
