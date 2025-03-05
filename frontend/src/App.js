@@ -8,7 +8,7 @@ function App() {
   
   // Deployment timestamp - this will change with each deployment
   const deploymentTime = new Date().toISOString();
-  const buildVersion = "MAJOR VISUAL CHANGE v" + (Math.floor(Math.random() * 9000) + 1000);
+  const buildVersion = "VERIFIED DEPLOYMENT v" + (Math.floor(Math.random() * 9000) + 1000);
   
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -40,15 +40,15 @@ function App() {
   return (
     <div className="maintenance-page new-theme">
       <div className="update-banner new-banner">
-        💥 LATEST UPDATE: March 5, 2025 - {buildVersion} 💥
+        ✅ GITHUB ACTION VERIFICATION - {buildVersion} ✅
       </div>
       
       <div className="container new-container">
-        <h1 className="new-title">Patient Path - FRESH UPDATE!</h1>
+        <h1 className="new-title">Patient Path - WORKFLOW CONFIRMED!</h1>
         <div className="dramatic-change-notice">
-          <h2>This page was just updated!</h2>
-          <p>The deployment system is working if you see this message.</p>
-          <p className="deploy-time">Deployed: {new Date().toLocaleString()}</p>
+          <h2>GitHub Actions Workflow Verified!</h2>
+          <p>Auto-deployment is working correctly via GitHub Actions.</p>
+          <p className="deploy-time">Last verified: {new Date().toLocaleString()}</p>
         </div>
         
         <div className="countdown-container">
