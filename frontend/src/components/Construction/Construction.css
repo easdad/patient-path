@@ -125,30 +125,4 @@ p {
   100% {
     transform: translateY(0px);
   }
-}
-
-.app-container {
-  position: relative;
-  min-height: 100vh;
-}
-
-.toggle-view-button {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  padding: 8px 16px;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  opacity: 0.8;
-  transition: opacity 0.3s, transform 0.3s;
-}
-
-.toggle-view-button:hover {
-  opacity: 1;
-  transform: scale(1.05);
 } 
