@@ -45,6 +45,17 @@ function App() {
       
       <div className="container new-container">
         <h1 className="new-title">Patient Path - FINAL TEST!</h1>
+        
+        {/* New notification badge */}
+        <div className="notification-badge">
+          <div className="notification-pulse"></div>
+          <div className="notification-content">
+            <span className="notification-icon">🔔</span>
+            <span className="notification-text">New feature: 3D Deployment Statistics added!</span>
+            <span className="notification-time">{new Date().toLocaleTimeString()}</span>
+          </div>
+        </div>
+        
         <div className="dramatic-change-notice">
           <h2>GitHub Actions Workflow Verified!</h2>
           <p>Auto-deployment is working correctly via GitHub Actions.</p>
@@ -58,6 +69,58 @@ function App() {
             <p>This is the final verification test with obvious visual changes.</p>
             <p>If you see this animated section with rotating borders, the deployment is successful!</p>
           </div>
+        </div>
+        
+        {/* New 3D Rotating Cube Component */}
+        <div className="cube-container">
+          <h3 className="new-subtitle">Deployment Statistics</h3>
+          <div className="scene">
+            <div className="cube">
+              <div className="cube__face cube__face--front">
+                <div className="cube-content">
+                  <h4>Build Info</h4>
+                  <p>Version: {buildVersion}</p>
+                  <p>Deploy Time: {new Date().toLocaleTimeString()}</p>
+                </div>
+              </div>
+              <div className="cube__face cube__face--back">
+                <div className="cube-content">
+                  <h4>Server Status</h4>
+                  <p>Environment: Production</p>
+                  <p>Region: US-East</p>
+                </div>
+              </div>
+              <div className="cube__face cube__face--right">
+                <div className="cube-content">
+                  <h4>Performance</h4>
+                  <p>Load Time: 1.2s</p>
+                  <p>Cache: Enabled</p>
+                </div>
+              </div>
+              <div className="cube__face cube__face--left">
+                <div className="cube-content">
+                  <h4>Tech Stack</h4>
+                  <p>Frontend: React</p>
+                  <p>Backend: Node.js</p>
+                </div>
+              </div>
+              <div className="cube__face cube__face--top">
+                <div className="cube-content">
+                  <h4>GitHub</h4>
+                  <p>Commit: {buildVersion.slice(-4)}</p>
+                  <p>Branch: main</p>
+                </div>
+              </div>
+              <div className="cube__face cube__face--bottom">
+                <div className="cube-content">
+                  <h4>Next Update</h4>
+                  <p>{timeLeft.days} days</p>
+                  <p>{timeLeft.hours}h {timeLeft.minutes}m</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="cube-instructions">Hover to rotate the cube</p>
         </div>
         
         <div className="countdown-container">
