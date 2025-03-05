@@ -8,6 +8,7 @@ function App() {
   
   // Deployment timestamp - this will change with each deployment
   const deploymentTime = new Date().toISOString();
+  const buildVersion = "MAJOR VISUAL CHANGE v" + (Math.floor(Math.random() * 9000) + 1000);
   
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -37,78 +38,67 @@ function App() {
   }, []);
   
   return (
-    <div className="maintenance-page">
-      <div className="update-banner">
-        🚀 Auto-Deployment Test - Updated on {new Date().toLocaleString()} 🚀
+    <div className="maintenance-page new-theme">
+      <div className="update-banner new-banner">
+        💥 DRAMATIC VISUAL CHANGE - {buildVersion} - {deploymentTime} 💥
       </div>
       
-      {/* NEW AUTO-DEPLOYMENT VERIFICATION */}
-      <div className="deployment-verification">
-        <div className="verification-content">
-          <h2>AUTO-DEPLOYMENT VERIFICATION</h2>
-          <div className="verification-id">Build ID: {Math.random().toString(36).substring(2, 10).toUpperCase()}</div>
-          <div className="verification-time">
-            <div>Deployment Timestamp:</div>
-            <div className="timestamp">{deploymentTime}</div>
-          </div>
-          <div className="verification-message">
-            If this timestamp changes, auto-deployment is working!
-          </div>
+      <div className="container new-container">
+        <h1 className="new-title">Patient Path - NEW DESIGN!</h1>
+        <div className="dramatic-change-notice">
+          <h2>This is a dramatically different design!</h2>
+          <p>If you see this green theme with red countdown boxes, auto-deployment is working!</p>
+          <p className="deploy-time">Deployed: {new Date().toLocaleString()}</p>
         </div>
-      </div>
-      
-      <div className="container">
-        <h1>Patient Path</h1>
-        <h2>Our healthcare coordination platform is currently under development</h2>
         
         <div className="countdown-container">
-          <h3>Launching In:</h3>
+          <h3 className="new-subtitle">Launching In:</h3>
           <div className="countdown">
-            <div className="countdown-item">
+            <div className="countdown-item new-countdown-item">
               <span className="countdown-number">{timeLeft.days}</span>
               <span className="countdown-label">Days</span>
             </div>
-            <div className="countdown-item">
+            <div className="countdown-item new-countdown-item">
               <span className="countdown-number">{timeLeft.hours}</span>
               <span className="countdown-label">Hours</span>
             </div>
-            <div className="countdown-item">
+            <div className="countdown-item new-countdown-item">
               <span className="countdown-number">{timeLeft.minutes}</span>
               <span className="countdown-label">Minutes</span>
             </div>
-            <div className="countdown-item">
+            <div className="countdown-item new-countdown-item">
               <span className="countdown-number">{timeLeft.seconds}</span>
               <span className="countdown-label">Seconds</span>
             </div>
           </div>
         </div>
         
-        <div className="progress-bar">
-          <div className="progress"></div>
+        <div className="progress-bar new-progress-bar">
+          <div className="progress new-progress"></div>
         </div>
         
-        <div className="features">
-          <div className="feature">
+        <div className="features new-features">
+          <div className="feature new-feature">
             <div className="feature-icon">🏥</div>
             <h3>Care Coordination</h3>
             <p>Seamless communication between healthcare providers</p>
           </div>
-          <div className="feature">
+          <div className="feature new-feature">
             <div className="feature-icon">📱</div>
             <h3>Patient Portal</h3>
             <p>Secure access to your medical information</p>
           </div>
-          <div className="feature">
+          <div className="feature new-feature">
             <div className="feature-icon">📊</div>
             <h3>Health Analytics</h3>
             <p>Data-driven insights for better care</p>
           </div>
         </div>
         
-        <p>We're working hard to bring you a revolutionary healthcare experience. Check back soon!</p>
+        <p className="new-text">We're working hard to bring you a revolutionary healthcare experience. Check back soon!</p>
         
-        <div className="contact">
-          <p>Contact us at <a href="mailto:info@patientpath.com">info@patientpath.com</a></p>
+        <div className="contact new-contact">
+          <p>Contact us at <a href="mailto:info@patientpath.com" className="new-link">info@patientpath.com</a></p>
           <p>© 2023 Patient Path. All rights reserved.</p>
         </div>
       </div>
