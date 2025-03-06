@@ -5,7 +5,7 @@ import LandingPage from './components/Landing/LandingPage';
 import './App.css';
 
 function App() {
-  const [showView, setShowView] = useState('landing');
+  const [showView, setShowView] = useState('construction');
 
   const toggleView = () => {
     if (showView === 'landing') {
