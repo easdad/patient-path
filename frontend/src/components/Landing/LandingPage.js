@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import './LandingPage.css';
+import supabase from '../../utils/supabaseClient';
 
 const LandingPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    confirmPassword: '',
-    fullName: '',
+    password: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -17,34 +19,83 @@ const LandingPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would add authentication logic
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      // Login with Supabase
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password
+      });
+      
+      if (signInError) throw signInError;
+      
+      console.log('Login successful', data);
+      
+      // Route to appropriate dashboard based on user type
+      const { data: { user } } = await supabase.auth.getUser();
+      const userType = user?.user_metadata?.user_type || 'hospital';
+      
+      const dashboardRoute = userType === 'hospital' ? '/hospital-dashboard' : '/ambulance-dashboard';
+      navigate(dashboardRoute);
+    } catch (err) {
+      console.error('Authentication error:', err);
+      setError(err.message || 'An error occurred during authentication');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const toggleForm = () => {
-    setIsLogin(!isLogin);
+  const handleForgotPassword = async () => {
+    const email = formData.email;
+    if (!email) {
+      setError('Please enter your email address first');
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-password',
+      });
+      
+      if (error) throw error;
+      
+      alert(`Password reset instructions have been sent to ${email}`);
+    } catch (err) {
+      console.error('Password reset error:', err);
+      setError(err.message || 'Failed to send password reset email');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider) => {
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      
+      if (error) throw error;
+      
+      // The redirect will happen automatically, but we set isSubmitting to true
+      // to disable buttons and prevent multiple clicks
+    } catch (err) {
+      console.error(`${provider} login error:`, err);
+      setError(err.message || `Failed to sign in with ${provider}`);
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="landing-container">
-      {/* Header */}
-      <header className="landing-header">
-        <div className="logo-area">
-          <div className="logo-circle">+</div>
-          <div className="logo-text">
-            <h1>PATIENT PATH</h1>
-            <p>Patient Transport Hub</p>
-          </div>
-        </div>
-        <button className="menu-button">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </header>
-
       {/* Centered Content */}
       <main className="landing-main centered-layout">
         {/* Centered Icon and Welcome Text */}
@@ -71,29 +122,14 @@ const LandingPage = () => {
         {/* Auth Card */}
         <div className="auth-section">
           <div className="auth-card">
-            <h1>{isLogin ? 'Welcome back' : 'Create account'}</h1>
+            <h1>Welcome back</h1>
             <p className="auth-subtitle">
-              {isLogin 
-                ? 'Sign in to access your health information' 
-                : 'Join Patient Path to manage your healthcare journey'}
+              Sign in to access your health information
             </p>
 
-            <form onSubmit={handleSubmit}>
-              {!isLogin && (
-                <div className="form-group">
-                  <label htmlFor="fullName">Full Name</label>
-                  <input
-                    type="text"
-                    id="fullName"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </div>
-              )}
+            {error && <div className="auth-error">{error}</div>}
 
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="email">Email</label>
                 <input
@@ -120,45 +156,63 @@ const LandingPage = () => {
                 />
               </div>
 
-              {!isLogin && (
-                <div className="form-group">
-                  <label htmlFor="confirmPassword">Confirm Password</label>
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="Confirm your password"
-                    required
-                  />
-                </div>
-              )}
-
-              <button type="submit" className="auth-button">
-                {isLogin ? 'Sign In' : 'Create Account'}
+              <button 
+                type="submit" 
+                className="auth-button"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Processing...' : 'Sign In'}
               </button>
+
+              <div className="forgot-password">
+                <button 
+                  type="button" 
+                  className="forgot-password-link"
+                  onClick={handleForgotPassword}
+                >
+                  Forgot your password?
+                </button>
+              </div>
             </form>
 
             <div className="auth-divider">
               <span>OR</span>
             </div>
 
-            <button className="social-auth-button google-button">
-              <span className="social-icon">G</span>
+            <button 
+              className="social-auth-button google-button" 
+              disabled={isSubmitting}
+              onClick={() => handleSocialLogin('google')}
+            >
+              <span className="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
+                  <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                  <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+                  <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
+                  <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+                </svg>
+              </span>
               Continue with Google
             </button>
 
-            <button className="social-auth-button apple-button">
-              <span className="social-icon">a</span>
+            <button 
+              className="social-auth-button apple-button" 
+              disabled={isSubmitting}
+              onClick={() => handleSocialLogin('apple')}
+            >
+              <span className="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="18px" height="18px">
+                  <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                </svg>
+              </span>
               Continue with Apple
             </button>
 
             <p className="auth-toggle">
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
-              <button type="button" onClick={toggleForm} className="toggle-button">
-                {isLogin ? 'Sign up' : 'Sign in'}
-              </button>
+              Don't have an account?{" "}
+              <Link to="/register" className="toggle-button">
+                Create account
+              </Link>
             </p>
           </div>
         </div>

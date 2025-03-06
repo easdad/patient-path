@@ -1,0 +1,702 @@
+/* Hospital Dashboard Styles */
+:root {
+  --primary-color: #5a2c82;
+  --secondary-color: #ff8400;
+  --gradient-primary: linear-gradient(135deg, #5a2c82, #ff8400);
+  --gradient-secondary: linear-gradient(135deg, #4a2768, #e07600);
+  --text-dark: #333;
+  --text-light: #f8f9fa;
+  --bg-light: #f5f7fa;
+  --border-color: #e0e0e0;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --active-color: #5a2c82;
+  --pending-color: #f59e0b;
+  --completed-color: #10b981;
+  --urgent-color: #ef4444;
+  --unread-color: #3b82f6;
+  --hover-bg: #f0f4f8;
+}
+
+/* Dashboard Loading */
+.dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: var(--bg-light);
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(90, 44, 130, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Main Dashboard Layout */
+.hospital-dashboard {
+  min-height: 100vh;
+  background-color: var(--bg-light);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  background: var(--gradient-primary);
+  background-size: 200% 200%;
+  animation: gradientAnimation 10s ease infinite;
+  color: white;
+  padding: 1.25rem 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.header-content h1 {
+  font-size: 1.75rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.primary-button, .secondary-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.primary-button {
+  background-color: white;
+  color: var(--primary-color);
+}
+
+.primary-button:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.secondary-button {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  backdrop-filter: blur(4px);
+}
+
+.secondary-button:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.primary-button svg, .secondary-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Dashboard Container */
+.dashboard-container {
+  display: flex;
+  flex: 1;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 1.5rem;
+  gap: 1.5rem;
+}
+
+/* Dashboard Sidebar */
+.dashboard-sidebar {
+  width: 250px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+/* Dashboard Main Content */
+.dashboard-main {
+  flex: 1;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+/* Dashboard Notifications */
+.dashboard-notifications {
+  width: 300px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+/* Common Panel Styles */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.panel-header h2 {
+  font-size: 1.125rem;
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-all-button, .mark-all-read-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+
+.view-all-button:hover, .mark-all-read-button:hover {
+  text-decoration: underline;
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: #888;
+}
+
+/* StatisticsPanel Styles */
+.statistics-panel {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  height: 100%;
+}
+
+.refresh-button {
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+
+.refresh-button:hover {
+  color: var(--primary-color);
+}
+
+.refresh-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.stat-card {
+  padding: 1.5rem;
+  border-radius: 8px;
+  background-color: var(--bg-light);
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.stat-card.active .stat-icon {
+  background-color: rgba(90, 44, 130, 0.1);
+  color: var(--active-color);
+}
+
+.stat-card.pending .stat-icon {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--pending-color);
+}
+
+.stat-card.completed .stat-icon {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--completed-color);
+}
+
+.stat-card.urgent .stat-icon {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--urgent-color);
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-info h3 {
+  font-size: 0.875rem;
+  margin: 0 0 0.5rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.stat-description {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+/* ActivityFeed Styles */
+.activity-feed {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.activity-list {
+  padding: 0.5rem 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  gap: 1rem;
+  transition: background-color 0.2s;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.activity-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-icon svg {
+  width: 16px;
+  height: 16px;
+  color: #666;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-message {
+  font-size: 0.875rem;
+  color: var(--text-dark);
+  margin: 0 0 0.25rem;
+  line-height: 1.4;
+}
+
+.activity-time {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.activity-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ccc;
+}
+
+.status-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #888;
+  text-transform: capitalize;
+}
+
+.activity-item.status-pending .status-indicator {
+  background-color: var(--pending-color);
+}
+
+.activity-item.status-active .status-indicator {
+  background-color: var(--active-color);
+}
+
+.activity-item.status-completed .status-indicator {
+  background-color: var(--completed-color);
+}
+
+.activity-item.status-unread .status-indicator {
+  background-color: var(--unread-color);
+}
+
+.activity-item.status-pending .status-text {
+  color: var(--pending-color);
+}
+
+.activity-item.status-active .status-text {
+  color: var(--active-color);
+}
+
+.activity-item.status-completed .status-text {
+  color: var(--completed-color);
+}
+
+.activity-item.status-unread .status-text {
+  color: var(--unread-color);
+}
+
+/* NotificationsPanel Styles */
+.notifications-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+}
+
+.notifications-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.notification-item.unread {
+  background-color: rgba(90, 44, 130, 0.05);
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  color: var(--text-dark);
+}
+
+.notification-message {
+  font-size: 0.8125rem;
+  color: #666;
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.notification-indicator {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+}
+
+.notifications-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+}
+
+.view-all-notifications {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+
+.view-all-notifications:hover {
+  text-decoration: underline;
+}
+
+/* DashboardNav Styles */
+.dashboard-nav {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-profile {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--gradient-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.user-details h3 {
+  font-size: 0.9375rem;
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.user-details p {
+  font-size: 0.75rem;
+  margin: 0;
+  color: #888;
+}
+
+.nav-items {
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  color: #666;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  background-color: var(--hover-bg);
+  color: var(--primary-color);
+}
+
+.nav-item.active {
+  color: var(--primary-color);
+  background-color: rgba(90, 44, 130, 0.05);
+  font-weight: 500;
+}
+
+.nav-icon {
+  margin-right: 0.75rem;
+  display: flex;
+}
+
+.nav-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.active-indicator {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background-color: var(--primary-color);
+  border-radius: 0 4px 4px 0;
+}
+
+.nav-footer {
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.nav-help, .nav-logout {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.nav-help:hover, .nav-logout:hover {
+  background-color: var(--hover-bg);
+  color: var(--primary-color);
+}
+
+.nav-help svg, .nav-logout svg {
+  width: 18px;
+  height: 18px;
+  margin-right: 0.75rem;
+}
+
+.nav-logout {
+  color: #ec4141;
+}
+
+.nav-logout:hover {
+  color: #d92020;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .dashboard-sidebar, .dashboard-notifications {
+    width: 100%;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .dashboard-container {
+    padding: 1rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .primary-button, .secondary-button {
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
+  }
+  
+  .panel-header {
+    padding: 1rem;
+  }
+  
+  .activity-item, .notification-item {
+    padding: 1rem;
+  }
+  
+  .activity-message, .notification-message {
+    font-size: 0.8125rem;
+  }
+} 

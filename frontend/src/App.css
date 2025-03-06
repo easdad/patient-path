@@ -6,7 +6,7 @@
 
 body {
   font-family: 'Roboto', sans-serif;
-  overflow: hidden;
+  overflow-x: hidden; /* Allow vertical scrolling but prevent horizontal */
 }
 
 .construction-page {
@@ -127,28 +127,113 @@ p {
   }
 }
 
+/* App container styles */
 .app-container {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
+  position: relative;
 }
 
-.toggle-view-button {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  padding: 8px 16px;
-  background-color: #333;
+.app-container > * {
+  flex: 1;
+}
+
+/* Loading indicator */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--color-purple, #8e2de2);
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dashboard styles */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 90vh;
+}
+
+.dashboard-container h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--color-purple, #8e2de2);
+}
+
+.dashboard-container p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.dashboard-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card h2 {
+  font-size: 1.25rem;
+  color: #333;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--color-purple, #8e2de2);
+  padding-bottom: 0.5rem;
+}
+
+.dashboard-card p {
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+.dashboard-button {
+  background: var(--gradient-primary, linear-gradient(90deg, #8e2de2, #ff512f));
   color: white;
   border: none;
-  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
-  opacity: 0.8;
-  transition: opacity 0.3s, transform 0.3s;
+  font-weight: 500;
+  transition: transform 0.2s;
 }
 
-.toggle-view-button:hover {
-  opacity: 1;
+.dashboard-button:hover {
   transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
 } 
