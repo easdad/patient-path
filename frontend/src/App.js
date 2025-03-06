@@ -2,13 +2,20 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Construction from './components/Construction/Construction';
 import LoginRegister from './components/Auth/LoginRegister';
+import LandingPage from './components/Landing/LandingPage';
 import './App.css';
 
 function App() {
-  const [showConstruction, setShowConstruction] = useState(false);
+  const [showView, setShowView] = useState('landing');
 
   const toggleView = () => {
-    setShowConstruction(!showConstruction);
+    if (showView === 'landing') {
+      setShowView('construction');
+    } else if (showView === 'construction') {
+      setShowView('login');
+    } else {
+      setShowView('landing');
+    }
   };
 
   // For development, we'll show a switch button to toggle between views
@@ -16,14 +23,13 @@ function App() {
     <Router>
       <div className="app-container">
         <button className="toggle-view-button" onClick={toggleView}>
-          {showConstruction ? 'Show Login Page' : 'Show Construction Page'}
+          {showView === 'landing' ? 'Show Construction Page' : 
+           showView === 'construction' ? 'Show Login Page' : 'Show Landing Page'}
         </button>
         
-        {showConstruction ? (
-          <Construction />
-        ) : (
-          <LoginRegister />
-        )}
+        {showView === 'construction' && <Construction />}
+        {showView === 'login' && <LoginRegister />}
+        {showView === 'landing' && <LandingPage />}
       </div>
     </Router>
   );
