@@ -1,7 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './LandingPage.css';
 
 const LandingPage = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    fullName: '',
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Here you would add authentication logic
+    console.log('Form submitted:', formData);
+  };
+
+  const toggleForm = () => {
+    setIsLogin(!isLogin);
+  };
+
   return (
     <div className="landing-container">
       {/* Header */}
@@ -20,46 +45,125 @@ const LandingPage = () => {
         </button>
       </header>
 
-      {/* Main Content */}
-      <main className="landing-main">
-        <div className="icon-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="1" y="3" width="15" height="13" rx="2" ry="2"></rect>
-            <line x1="16" y1="8" x2="20" y2="8"></line>
-            <line x1="16" y1="16" x2="23" y2="16"></line>
-            <rect x="12" y="5" width="3" height="9"></rect>
-            <circle cx="7" cy="16" r="3"></circle>
-            <circle cx="17" cy="16" r="3"></circle>
-          </svg>
-        </div>
-        
-        <h2 className="welcome-heading">Welcome to Patient PATH</h2>
-        
-        <p className="welcome-text">
-          Streamlining patient transport coordination between healthcare facilities and 
-          ambulance services. Please log in or create an account to continue.
-        </p>
-        
-        <div className="action-buttons">
-          <button className="login-button">
+      {/* Centered Content */}
+      <main className="landing-main centered-layout">
+        {/* Centered Icon and Welcome Text */}
+        <div className="centered-welcome">
+          <div className="icon-circle">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-              <polyline points="10 17 15 12 10 7"></polyline>
-              <line x1="15" y1="12" x2="3" y2="12"></line>
+              <rect x="1" y="3" width="15" height="13" rx="2" ry="2"></rect>
+              <line x1="16" y1="8" x2="20" y2="8"></line>
+              <line x1="16" y1="16" x2="23" y2="16"></line>
+              <rect x="12" y="5" width="3" height="9"></rect>
+              <circle cx="7" cy="16" r="3"></circle>
+              <circle cx="17" cy="16" r="3"></circle>
             </svg>
-            Login to Your Account
-          </button>
-          <button className="register-button">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="8.5" cy="7" r="4"></circle>
-              <line x1="20" y1="8" x2="20" y2="14"></line>
-              <line x1="23" y1="11" x2="17" y2="11"></line>
-            </svg>
-            Register New Account
-          </button>
+          </div>
+          
+          <h2 className="welcome-heading">Welcome to Patient PATH</h2>
+          
+          <p className="welcome-text">
+            Streamlining patient transport coordination between healthcare facilities and 
+            ambulance services. Please log in or create an account to continue.
+          </p>
         </div>
-        
+
+        {/* Auth Card */}
+        <div className="auth-section">
+          <div className="auth-card">
+            <h1>{isLogin ? 'Welcome back' : 'Create account'}</h1>
+            <p className="auth-subtitle">
+              {isLogin 
+                ? 'Sign in to access your health information' 
+                : 'Join Patient Path to manage your healthcare journey'}
+            </p>
+
+            <form onSubmit={handleSubmit}>
+              {!isLogin && (
+                <div className="form-group">
+                  <label htmlFor="fullName">Full Name</label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+
+              {!isLogin && (
+                <div className="form-group">
+                  <label htmlFor="confirmPassword">Confirm Password</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="Confirm your password"
+                    required
+                  />
+                </div>
+              )}
+
+              <button type="submit" className="auth-button">
+                {isLogin ? 'Sign In' : 'Create Account'}
+              </button>
+            </form>
+
+            <div className="auth-divider">
+              <span>OR</span>
+            </div>
+
+            <button className="social-auth-button google-button">
+              <span className="social-icon">G</span>
+              Continue with Google
+            </button>
+
+            <button className="social-auth-button apple-button">
+              <span className="social-icon">a</span>
+              Continue with Apple
+            </button>
+
+            <p className="auth-toggle">
+              {isLogin ? "Don't have an account? " : "Already have an account? "}
+              <button type="button" onClick={toggleForm} className="toggle-button">
+                {isLogin ? 'Sign up' : 'Sign in'}
+              </button>
+            </p>
+          </div>
+        </div>
+
+        {/* Feature Cards Side by Side */}
         <div className="feature-cards">
           <div className="feature-card">
             <div className="feature-icon hospital">
@@ -84,17 +188,6 @@ const LandingPage = () => {
             </div>
             <h3>For Ambulance Services</h3>
             <p>Find transport requests, submit bids, and efficiently manage your fleet.</p>
-          </div>
-          
-          <div className="feature-card">
-            <div className="feature-icon patient">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            </div>
-            <h3>For Patients</h3>
-            <p>Better coordination means faster transports and improved quality of care.</p>
           </div>
         </div>
       </main>

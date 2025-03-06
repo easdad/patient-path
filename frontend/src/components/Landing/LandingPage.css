@@ -5,6 +5,13 @@
   box-sizing: border-box;
 }
 
+:root {
+  --gradient-primary: linear-gradient(90deg, #8e2de2, #ff512f);
+  --color-purple: #8e2de2;
+  --color-orange: #ff512f;
+  --color-blue: #4fc3f7;
+}
+
 .landing-container {
   font-family: 'Roboto', 'Segoe UI', sans-serif;
   min-height: 100vh;
@@ -14,7 +21,7 @@
 
 /* Header Styles */
 .landing-header {
-  background: linear-gradient(90deg, #8e2de2, #ff512f);
+  background: var(--gradient-primary);
   color: white;
   padding: 1rem 2rem;
   display: flex;
@@ -36,7 +43,7 @@
   height: 30px;
   background-color: white;
   border-radius: 50%;
-  color: #8e2de2;
+  color: var(--color-purple);
   font-size: 1.5rem;
   font-weight: bold;
 }
@@ -70,14 +77,31 @@
   border-radius: 3px;
 }
 
-/* Main Content Styles */
+/* Main Content Styles - Centered Layout */
 .landing-main {
   flex: 1;
-  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: #f8f9fa;
+  padding: 2rem;
+}
+
+.landing-main.centered-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Centered Welcome Section */
+.centered-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .icon-circle {
@@ -90,13 +114,13 @@
   justify-content: center;
   margin-bottom: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 3px solid #4fc3f7;
+  border: 3px solid var(--color-purple);
 }
 
 .icon-circle svg {
   width: 40px;
   height: 40px;
-  color: #4fc3f7;
+  color: var(--color-purple);
 }
 
 .welcome-heading {
@@ -110,57 +134,170 @@
   text-align: center;
   max-width: 600px;
   color: #666;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   line-height: 1.5;
 }
 
-.action-buttons {
+/* Auth Section */
+.auth-section {
+  width: 100%;
   display: flex;
-  gap: 1rem;
-  margin-bottom: 2.5rem;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0 2rem;
 }
 
-.login-button, .register-button {
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
+/* Auth Card Styles */
+.auth-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  color: #333;
+  margin: 0 auto;
+}
+
+.auth-card h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-purple);
+}
+
+.auth-subtitle {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--color-purple);
+  box-shadow: 0 0 0 2px rgba(142, 45, 226, 0.2);
+}
+
+.auth-button {
+  width: 100%;
+  padding: 0.75rem;
   border: none;
+  border-radius: 8px;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-top: 1rem;
+}
+
+.auth-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.auth-divider {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+  text-align: center;
+  margin: 2rem 0;
+  color: #777;
 }
 
-.login-button {
-  background-color: #2196f3;
-  color: white;
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #ddd;
 }
 
-.register-button {
+.auth-divider span {
+  padding: 0 10px;
+  font-size: 0.9rem;
+}
+
+.social-auth-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   background-color: white;
   color: #333;
-  border: 1px solid #ddd;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 1rem;
 }
 
-.login-button:hover, .register-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.social-auth-button:hover {
+  background-color: #f5f5f5;
 }
 
-.login-button svg, .register-button svg {
-  width: 18px;
-  height: 18px;
+.social-icon {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.google-button .social-icon {
+  color: var(--color-purple);
+}
+
+.apple-button .social-icon {
+  color: #000;
+}
+
+.auth-toggle {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #555;
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  color: var(--color-purple);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+}
+
+.toggle-button:hover {
+  text-decoration: underline;
 }
 
 /* Feature Cards */
 .feature-cards {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
   justify-content: center;
-  max-width: 1200px;
+  gap: 2rem;
+  max-width: 900px;
   width: 100%;
+  margin: 0 auto;
 }
 
 .feature-card {
@@ -170,7 +307,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   flex: 1;
   min-width: 250px;
-  max-width: 350px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
 }
@@ -187,15 +324,11 @@
 }
 
 .feature-icon.hospital svg {
-  color: #9c27b0;
+  color: var(--color-purple);
 }
 
 .feature-icon.ambulance svg {
-  color: #2196f3;
-}
-
-.feature-icon.patient svg {
-  color: #ff9800;
+  color: var(--color-orange);
 }
 
 .feature-card h3 {
@@ -212,9 +345,10 @@
 
 /* Footer Styles */
 .landing-footer {
-  background: linear-gradient(90deg, #8e2de2, #ff512f);
+  background: var(--gradient-primary);
   color: white;
   padding: 2rem 2rem 1rem;
+  margin-top: 2rem;
 }
 
 .footer-content {
@@ -290,10 +424,21 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .action-buttons {
+  .feature-cards {
     flex-direction: column;
-    width: 100%;
-    max-width: 300px;
+    align-items: center;
+  }
+  
+  .feature-card {
+    max-width: 100%;
+  }
+  
+  .auth-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .centered-welcome {
+    padding: 2rem 1rem 1rem;
   }
   
   .footer-content {
@@ -311,5 +456,28 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .auth-card h1 {
+    font-size: 1.8rem;
+  }
+  
+  .icon-circle {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .welcome-heading {
+    font-size: 1.5rem;
+  }
+  
+  .welcome-text {
+    font-size: 0.9rem;
   }
 } 
