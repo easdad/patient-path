@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '../../utils/supabaseClient';
+import supabase from '../../utils/supabaseClient';
 import './AuthStyles.css';
 
 const AuthCallback = () => {
@@ -69,7 +69,12 @@ const AuthCallback = () => {
       }
     };
 
-    handleEmailConfirmation();
+    // Only run the callback handler if we have a hash in the URL
+    if (location.hash) {
+      handleEmailConfirmation();
+    } else {
+      setError('No authentication data found in URL');
+    }
   }, [location, navigate]);
 
   if (error) {

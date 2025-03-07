@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import supabase from './supabaseClient';
 
 const AuthContext = createContext();
@@ -6,19 +6,25 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Check for active session on initial load
     const getUser = async () => {
       try {
         setLoading(true);
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          throw sessionError;
+        }
         
         if (session?.user) {
           setUser(session.user);
         }
       } catch (error) {
         console.error('Error checking authentication status:', error);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
@@ -27,8 +33,13 @@ export function AuthProvider({ children }) {
     getUser();
 
     // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event);
+      if (session?.user) {
+        setUser(session.user);
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
@@ -41,8 +52,18 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     loading,
-    signOut: () => supabase.auth.signOut(),
+    error,
     isAuthenticated: !!user,
+    signOut: async () => {
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        setUser(null);
+      } catch (error) {
+        console.error('Error signing out:', error);
+        setError(error.message);
+      }
+    },
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

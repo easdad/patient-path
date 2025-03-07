@@ -15,28 +15,6 @@ import DevNavigation from './components/common/DevNavigation';
 import AmbulanceDashboard from './components/Dashboard/Ambulance/AmbulanceDashboard';
 import './App.css';
 
-// Ambulance Dashboard component - no longer needs to include the Navbar
-const AmbulanceDashboard = () => (
-  <div className="dashboard-container">
-    <h1>Ambulance Service Dashboard</h1>
-    <p>Welcome to your ambulance service provider dashboard!</p>
-    
-    <div className="dashboard-cards">
-      <div className="dashboard-card">
-        <h2>Available Transport Requests</h2>
-        <p>View and accept patient transport requests.</p>
-        <button className="dashboard-button">View Requests</button>
-      </div>
-      
-      <div className="dashboard-card">
-        <h2>My Scheduled Transports</h2>
-        <p>View your upcoming scheduled transports.</p>
-        <button className="dashboard-button">View Schedule</button>
-      </div>
-    </div>
-  </div>
-);
-
 // Layout component to handle navbar rendering
 const Layout = ({ children }) => {
   return (
