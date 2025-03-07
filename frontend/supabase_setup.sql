@@ -1,11 +1,12 @@
 -- Enable the UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create profiles table
+-- Create profiles table with organization details
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
   full_name TEXT,
   user_type TEXT CHECK (user_type IN ('hospital', 'ambulance')),
+  organization_details JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -115,11 +116,23 @@ CREATE POLICY "Ambulance services can update their assignments"
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, user_type)
+  INSERT INTO public.profiles (id, full_name, user_type, organization_details)
   VALUES (
     new.id, 
     new.raw_user_meta_data->>'full_name',
-    new.raw_user_meta_data->>'user_type'
+    new.raw_user_meta_data->>'user_type',
+    jsonb_build_object(
+      'name', new.raw_user_meta_data->>'organization_name',
+      'address', new.raw_user_meta_data->>'organization_address',
+      'city', new.raw_user_meta_data->>'organization_city',
+      'state', new.raw_user_meta_data->>'organization_state',
+      'zip', new.raw_user_meta_data->>'organization_zip',
+      'phone', new.raw_user_meta_data->>'organization_phone',
+      'hospital_type', new.raw_user_meta_data->>'hospital_type',
+      'number_of_beds', new.raw_user_meta_data->>'number_of_beds',
+      'fleet_size', new.raw_user_meta_data->>'fleet_size',
+      'service_area', new.raw_user_meta_data->>'service_area'
+    )
   );
   RETURN new;
 END;

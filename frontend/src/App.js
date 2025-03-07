@@ -2,13 +2,17 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Construction from './components/Construction/Construction';
 import LandingPage from './components/Landing/LandingPage';
+import LoginPage from './components/Auth/LoginPage';
 import RegistrationPage from './components/Auth/RegistrationPage';
+import AuthCallback from './components/Auth/AuthCallback';
+import VerificationSuccess from './components/Auth/VerificationSuccess';
 import { AuthProvider } from './utils/AuthContext';
 import ProtectedRoute from './utils/ProtectedRoute';
 import Navbar from './components/common/Navbar';
 import SupabaseTest from './components/common/SupabaseTest';
 import HospitalDashboard from './components/Dashboard/Hospital/HospitalDashboard';
 import DevNavigation from './components/common/DevNavigation';
+import AmbulanceDashboard from './components/Dashboard/Ambulance/AmbulanceDashboard';
 import './App.css';
 
 // Ambulance Dashboard component - no longer needs to include the Navbar
@@ -65,8 +69,23 @@ function App() {
             />
             
             <Route 
+              path="/login" 
+              element={<LoginPage />} 
+            />
+            
+            <Route 
               path="/register" 
               element={<Layout><RegistrationPage /></Layout>} 
+            />
+            
+            <Route 
+              path="/auth/callback" 
+              element={<AuthCallback />} 
+            />
+            
+            <Route 
+              path="/auth/verification-success" 
+              element={<VerificationSuccess />} 
             />
             
             {/* Protected routes */}

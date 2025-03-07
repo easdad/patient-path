@@ -8,6 +8,7 @@ const RegistrationPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     // User account details
     email: '',
@@ -16,7 +17,7 @@ const RegistrationPage = () => {
     fullName: '',
     
     // Role selection
-    userType: 'hospital',
+    userType: '',
     
     // Organization information
     organizationName: '',
@@ -27,7 +28,7 @@ const RegistrationPage = () => {
     organizationPhone: '',
     
     // Additional fields for hospitals
-    hospitalType: 'general',
+    hospitalType: '',
     numberOfBeds: '',
     
     // Additional fields for ambulance services
@@ -155,6 +156,7 @@ const RegistrationPage = () => {
     }
     
     setIsSubmitting(true);
+    setError(null);
     
     try {
       // Register with Supabase
@@ -179,15 +181,17 @@ const RegistrationPage = () => {
         }
       });
       
-      if (signUpError) throw signUpError;
-      
-      // Create an entry in the organization profiles table
+      if (signUpError) {
+        console.error('Signup error:', signUpError);
+        throw signUpError;
+      }
+
+      // Update the profile with additional information
       const { error: profileError } = await supabase
-        .from(formData.userType === 'hospital' ? 'hospital_profiles' : 'ambulance_profiles')
-        .insert([
-          {
-            user_id: data.user.id,
-            organization_name: formData.organizationName,
+        .from('profiles')
+        .update({
+          organization_details: {
+            name: formData.organizationName,
             address: formData.organizationAddress,
             city: formData.organizationCity,
             state: formData.organizationState,
@@ -201,18 +205,23 @@ const RegistrationPage = () => {
               : {
                   fleet_size: formData.fleetSize,
                   service_area: formData.serviceArea
-                }
-            )
+                })
           }
-        ]);
+        })
+        .eq('id', data.user.id);
+
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+        throw profileError;
+      }
+
+      // Show success message
+      setSuccessMessage('Registration successful! Please check your email to verify your account.');
+      setCurrentStep('success');
       
-      if (profileError) throw profileError;
-      
-      // Set the final step to show verification message
-      setCurrentStep(4);
-    } catch (err) {
-      console.error('Registration error:', err);
-      setError(err.message || 'An error occurred during registration');
+    } catch (error) {
+      console.error('Registration error:', error);
+      setError(error.message || 'An error occurred during registration. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -581,12 +590,19 @@ const RegistrationPage = () => {
         
         {renderProgressIndicator()}
         
-        {error && currentStep !== 3 && <div className="auth-error">{error}</div>}
+        {error && <div className="auth-error">{error}</div>}
+        {successMessage && <div className="auth-success">{successMessage}</div>}
         
         {currentStep === 1 && renderRoleSelection()}
         {currentStep === 2 && renderOrganizationInfo()}
         {currentStep === 3 && renderAccountDetails()}
-        {currentStep === 4 && renderVerificationNotice()}
+        {currentStep === 'success' && (
+          <div className="verification-notice">
+            <h2>Check Your Email</h2>
+            <p>We've sent a verification link to your email address. Please click the link to verify your account.</p>
+            <p>Once verified, you'll be able to sign in to your account.</p>
+          </div>
+        )}
       </div>
       
       <div className="auth-footer">
@@ -613,4 +629,4 @@ const RegistrationPage = () => {
   );
 };
 
-export default RegistrationPage; 
+export default RegistrationPage;
