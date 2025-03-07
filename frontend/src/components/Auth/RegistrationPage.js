@@ -159,7 +159,26 @@ const RegistrationPage = () => {
     setError(null);
     
     try {
-      // Register with Supabase
+      // Create organization details object for storing in metadata
+      const organizationDetails = {
+        name: formData.organizationName,
+        address: formData.organizationAddress,
+        city: formData.organizationCity,
+        state: formData.organizationState,
+        zip: formData.organizationZip,
+        phone: formData.organizationPhone,
+        ...(formData.userType === 'hospital' 
+          ? { 
+              hospital_type: formData.hospitalType,
+              number_of_beds: formData.numberOfBeds
+            } 
+          : {
+              fleet_size: formData.fleetSize,
+              service_area: formData.serviceArea
+            })
+      };
+      
+      // Register with Supabase Auth
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -167,16 +186,7 @@ const RegistrationPage = () => {
           data: {
             full_name: formData.fullName,
             user_type: formData.userType,
-            organization_name: formData.organizationName,
-            organization_address: formData.organizationAddress,
-            organization_city: formData.organizationCity,
-            organization_state: formData.organizationState,
-            organization_zip: formData.organizationZip,
-            organization_phone: formData.organizationPhone,
-            hospital_type: formData.userType === 'hospital' ? formData.hospitalType : null,
-            number_of_beds: formData.userType === 'hospital' ? formData.numberOfBeds : null,
-            fleet_size: formData.userType === 'ambulance' ? formData.fleetSize : null,
-            service_area: formData.userType === 'ambulance' ? formData.serviceArea : null
+            organization_details: organizationDetails
           }
         }
       });
@@ -186,36 +196,7 @@ const RegistrationPage = () => {
         throw signUpError;
       }
 
-      // Update the profile with additional information
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          organization_details: {
-            name: formData.organizationName,
-            address: formData.organizationAddress,
-            city: formData.organizationCity,
-            state: formData.organizationState,
-            zip: formData.organizationZip,
-            phone: formData.organizationPhone,
-            ...(formData.userType === 'hospital' 
-              ? { 
-                  hospital_type: formData.hospitalType,
-                  number_of_beds: formData.numberOfBeds
-                } 
-              : {
-                  fleet_size: formData.fleetSize,
-                  service_area: formData.serviceArea
-                })
-          }
-        })
-        .eq('id', data.user.id);
-
-      if (profileError) {
-        console.error('Profile update error:', profileError);
-        throw profileError;
-      }
-
-      // Show success message
+      // Show success message - profile creation is handled by the database trigger
       setSuccessMessage('Registration successful! Please check your email to verify your account.');
       setCurrentStep('success');
       
