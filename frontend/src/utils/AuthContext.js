@@ -1,81 +1,208 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import supabase from './supabaseClient';
+import { supabase } from './supabaseClient';
+
+// Developer account email for special permissions
+const DEV_EMAIL = 'easdad.jm@gmail.com';
 
 const AuthContext = createContext();
 
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [userType, setUserType] = useState(null);
+  const [isDeveloper, setIsDeveloper] = useState(false);
 
   useEffect(() => {
-    // Check for active session on initial load
-    const getUser = async () => {
-      try {
-        setLoading(true);
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          throw sessionError;
-        }
-        
-        if (session?.user) {
-          setUser(session.user);
-        }
-      } catch (error) {
-        console.error('Error checking authentication status:', error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
+    // Get initial session
+    const initializeAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Error getting session:', error);
       }
+      
+      setSession(session);
+      setUser(session?.user || null);
+      
+      if (session?.user) {
+        fetchUserType(session.user);
+      }
+      
+      setLoading(false);
     };
 
-    getUser();
+    initializeAuth();
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
-      if (session?.user) {
-        setUser(session.user);
-      } else {
-        setUser(null);
+    // Listen for auth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log(`Auth event: ${event}`);
+        setSession(session);
+        setUser(session?.user || null);
+        
+        if (session?.user) {
+          fetchUserType(session.user);
+        } else {
+          setUserType(null);
+          setIsDeveloper(false);
+        }
+        
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    );
 
-    // Cleanup function to remove the listener when the component unmounts
     return () => {
-      subscription.unsubscribe();
+      authListener?.subscription?.unsubscribe();
     };
   }, []);
 
-  const value = {
-    user,
-    loading,
-    error,
-    isAuthenticated: !!user,
-    signOut: async () => {
-      try {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
-        setUser(null);
-      } catch (error) {
-        console.error('Error signing out:', error);
-        setError(error.message);
+  const fetchUserType = async (user) => {
+    try {
+      // Special case for developer account
+      if (user.email === DEV_EMAIL) {
+        setUserType('developer');
+        setIsDeveloper(true);
+        return;
       }
-    },
+      
+      // First check user metadata
+      if (user.user_metadata && user.user_metadata.user_type) {
+        setUserType(user.user_metadata.user_type);
+        setIsDeveloper(user.user_metadata.user_type === 'developer');
+        return;
+      }
+      
+      // If not in metadata, check profiles table
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_type')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user type:', error);
+        return;
+      }
+      
+      if (data) {
+        setUserType(data.user_type);
+        setIsDeveloper(data.user_type === 'developer');
+      }
+    } catch (error) {
+      console.error('Error in fetchUserType:', error);
+    }
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+  const signIn = async (email, password) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) throw error;
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error signing in:', error);
+      return { data: null, error };
+    }
+  };
 
-// Custom hook to use the auth context
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  const signUp = async (email, password, userData) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userData
+        }
+      });
+      
+      if (error) throw error;
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error signing up:', error);
+      return { data: null, error };
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const resetPassword = async (email) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) throw error;
+      
+      return { error: null };
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      return { error };
+    }
+  };
+
+  const updatePassword = async (password) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password,
+      });
+      
+      if (error) throw error;
+      
+      return { error: null };
+    } catch (error) {
+      console.error('Error updating password:', error);
+      return { error };
+    }
+  };
+
+  // Check if user has developer access
+  const hasDevAccess = () => {
+    return isDeveloper;
+  };
+
+  // Check if user can access a specific dashboard
+  const canAccessDashboard = (requiredType) => {
+    if (isDeveloper) return true; // Developers can access all dashboards
+    return userType === requiredType;
+  };
+
+  const value = {
+    user,
+    session,
+    userType,
+    isDeveloper,
+    loading,
+    signIn,
+    signUp,
+    signOut,
+    resetPassword,
+    updatePassword,
+    hasDevAccess,
+    canAccessDashboard
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export default AuthContext; 

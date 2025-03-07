@@ -1,0 +1,142 @@
+.dev-toolbar {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(34, 34, 34, 0.9);
+  color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  font-family: 'Roboto Mono', monospace;
+  transition: all 0.3s ease;
+  max-width: 400px;
+  width: auto;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dev-toolbar.expanded {
+  width: 350px;
+}
+
+.dev-toolbar-header {
+  padding: 10px 15px;
+  cursor: pointer;
+  background-color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dev-toolbar-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.toggle-icon {
+  font-size: 12px;
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+.toggle-icon.expanded {
+  transform: rotate(0deg);
+}
+
+.dev-toolbar-content {
+  padding: 15px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.dev-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dev-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.dev-section h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #64ffda;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.dev-section p {
+  margin: 5px 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.dev-toolbar button {
+  background-color: #444;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.dev-toolbar button:hover {
+  background-color: #555;
+}
+
+.dev-toolbar-footer {
+  margin-top: 15px;
+  font-size: 11px;
+  color: #aaa;
+  text-align: center;
+}
+
+/* Custom scrollbar */
+.dev-toolbar-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dev-toolbar-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dev-toolbar-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+}
+
+.dev-toolbar-content::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+@media (max-width: 768px) {
+  .dev-toolbar {
+    bottom: 10px;
+    right: 10px;
+    max-width: 300px;
+  }
+  
+  .dev-toolbar.expanded {
+    width: 300px;
+  }
+} 

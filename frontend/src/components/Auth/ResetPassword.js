@@ -48,8 +48,8 @@ const ResetPassword = () => {
       
       setSuccess(true);
       setTimeout(() => {
-        navigate('/login');
-      }, 3000);
+        navigate('/');
+      }, 2000);
     } catch (err) {
       console.error('Error resetting password:', err);
       setError(err.message || 'An error occurred while resetting your password. Please try again.');
@@ -125,7 +125,7 @@ const ResetPassword = () => {
           )}
 
           <div className="auth-footer">
-            <p>Remember your password? <a href="/login">Sign In</a></p>
+            <p>Remember your password? <a href="/">Sign In</a></p>
           </div>
         </div>
       </div>

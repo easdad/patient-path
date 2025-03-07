@@ -1,0 +1,90 @@
+.activity-feed {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activity-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.activity-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.activity-content {
+  flex-grow: 1;
+}
+
+.activity-text {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.activity-time {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.empty-activity-feed {
+  text-align: center;
+  padding: 32px 16px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Activity icon color variants */
+.activity-primary {
+  background-color: var(--primary-light-color);
+  color: var(--primary-color);
+}
+
+.activity-blue {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.activity-green {
+  background-color: #ecfdf5;
+  color: #10b981;
+}
+
+.activity-orange {
+  background-color: #fffbeb;
+  color: #f59e0b;
+}
+
+.activity-purple {
+  background-color: #f5f3ff;
+  color: #8b5cf6;
+}
+
+.activity-gray {
+  background-color: #f3f4f6;
+  color: #6b7280;
+} 

@@ -1,0 +1,304 @@
+.case-detail {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.case-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.case-detail-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.case-status {
+  display: flex;
+  gap: 8px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0 8px;
+  line-height: 1;
+}
+
+.error-message {
+  background-color: #fde8e8;
+  color: #e53e3e;
+  padding: 12px 16px;
+  margin: 16px 24px 0;
+  border-radius: 4px;
+}
+
+.success-message {
+  background-color: #ecfdf5;
+  color: #10b981;
+  padding: 12px 16px;
+  margin: 16px 24px 0;
+  border-radius: 4px;
+}
+
+.case-detail-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.detail-section {
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.detail-section h3 {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.detail-notes {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-notes p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.equipment-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.equipment-item {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: var(--text-color);
+}
+
+.case-detail-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.communicate-button,
+.status-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: none;
+}
+
+.communicate-button {
+  background-color: #f3f4f6;
+  color: var(--text-color);
+}
+
+.communicate-button:hover {
+  background-color: #e5e7eb;
+}
+
+.communicate-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.status-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.status-button:hover {
+  background-color: var(--primary-dark-color);
+}
+
+.status-button.cancel-button {
+  background-color: #ef4444;
+}
+
+.status-button.cancel-button:hover {
+  background-color: #dc2626;
+}
+
+.status-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Status badge colors */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.status-assigned {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.status-in-progress {
+  background-color: #f0fdfa;
+  color: #0d9488;
+}
+
+.status-arrived {
+  background-color: #ecfdf5;
+  color: #10b981;
+}
+
+.status-en-route {
+  background-color: #eff6ff;
+  color: #3b82f6;
+}
+
+.status-completed {
+  background-color: #ecfdf5;
+  color: #10b981;
+}
+
+.status-cancelled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Priority badge colors */
+.priority-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.priority-critical {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.priority-emergency {
+  background-color: #fff1f2;
+  color: #e11d48;
+}
+
+.priority-urgent {
+  background-color: #fff7ed;
+  color: #ea580c;
+}
+
+.priority-normal {
+  background-color: #f0f9ff;
+  color: #0284c7;
+}
+
+.priority-scheduled {
+  background-color: #f5f3ff;
+  color: #7c3aed;
+}
+
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .communicate-button,
+  .status-button {
+    width: 100%;
+    justify-content: center;
+  }
+} 

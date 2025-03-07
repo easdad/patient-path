@@ -1,0 +1,132 @@
+.notification-list {
+  max-height: 360px;
+  display: flex;
+  flex-direction: column;
+}
+
+.notifications {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f3f4f6;
+  position: relative;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item.unread {
+  background-color: rgba(var(--primary-color-rgb), 0.03);
+}
+
+.notification-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.notification-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.notification-content {
+  flex-grow: 1;
+}
+
+.notification-title {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.notification-text {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #4b5563;
+}
+
+.notification-time {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.unread-indicator {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+}
+
+.empty-notifications {
+  text-align: center;
+  padding: 32px 16px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.notification-actions {
+  margin-top: auto;
+  padding: 16px 0 0;
+  text-align: center;
+  border-top: 1px solid #f3f4f6;
+}
+
+.view-all-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.view-all-button:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.05);
+}
+
+/* Notification icon color variants */
+.notification-blue {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.notification-green {
+  background-color: #ecfdf5;
+  color: #10b981;
+}
+
+.notification-orange {
+  background-color: #fffbeb;
+  color: #f59e0b;
+}
+
+.notification-red {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.notification-gray {
+  background-color: #f3f4f6;
+  color: #6b7280;
+} 

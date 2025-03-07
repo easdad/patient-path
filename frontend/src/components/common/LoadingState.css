@@ -1,0 +1,121 @@
+/* Common spinner styles */
+.loading-spinner {
+  border-radius: 50%;
+  border-style: solid;
+  border-color: rgba(var(--primary-color-rgb, 90, 44, 130), 0.2);
+  border-top-color: var(--primary-color, #5a2c82);
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Size variations */
+.loading-small .loading-spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.loading-medium .loading-spinner {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.loading-large .loading-spinner {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+/* Text styling */
+.loading-text {
+  margin-left: 12px;
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+/* Inline loading */
+.loading-inline {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+/* Full page loading */
+.loading-full {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Overlay loading */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: inherit;
+}
+
+.loading-content {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Skeleton loading */
+.loading-skeleton {
+  width: 100%;
+  padding: 16px;
+  background-color: white;
+  border-radius: 8px;
+}
+
+.skeleton-header {
+  height: 24px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  width: 50%;
+}
+
+.skeleton-line {
+  height: 16px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.skeleton-line:last-child {
+  width: 70%;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+} 
