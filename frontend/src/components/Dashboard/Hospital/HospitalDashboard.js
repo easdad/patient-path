@@ -20,10 +20,10 @@ const HospitalDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState({
-    pendingRequests: 0,
-    activeTransports: 0,
-    completedToday: 0,
-    averageResponseTime: 0
+    total_transports: 0,
+    completed_transports: 0,
+    active_transports: 0,
+    pending_approval: 0
   });
   const [activities, setActivities] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -31,133 +31,221 @@ const HospitalDashboard = () => {
   const [activeView, setActiveView] = useState('dashboard');
 
   const fetchDashboardData = useCallback(async () => {
-    if (!user) return; // Skip if user isn't loaded yet
-    
-    setIsLoading(true);
-    setError(null);
+    if (!user) return;
     
     try {
-      // Fetch stats
-      const { data: requests, error: requestsError } = await supabase
-        .from('transport_requests')
+      setIsLoading(true);
+      setError(null);
+      
+      // Fetch dashboard stats
+      const { data: statsData, error: statsError } = await supabase
+        .from('dashboard_stats')
         .select('*')
-        .eq('hospital_id', user.id);
+        .eq('user_id', user.id)
+        .single();
       
-      if (requestsError) throw requestsError;
+      if (statsError && !statsError.message.includes('No rows found')) {
+        console.error('Error fetching stats:', statsError);
+        throw new Error('Failed to load dashboard statistics');
+      }
       
-      // Process data for stats
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      // If we don't have stats yet, create default ones
+      if (!statsData) {
+        const defaultStats = {
+          total_transports: 0,
+          completed_transports: 0,
+          active_transports: 0,
+          pending_approval: 0
+        };
+        
+        setStats(defaultStats);
+      } else {
+        setStats(statsData);
+      }
       
-      const pendingRequests = requests.filter(req => req.status === 'pending').length;
-      const activeTransports = requests.filter(req => 
-        req.status === 'assigned' || req.status === 'in_progress'
-      ).length;
-      const completedToday = requests.filter(req => 
-        req.status === 'completed' && new Date(req.completion_time) >= new Date(today)
-      ).length;
+      // Fetch recent activities
+      const { data: activitiesData, error: activitiesError } = await supabase
+        .from('activities')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
       
-      // Calculate average response time (in minutes)
-      let totalResponseTime = 0;
-      let completedWithResponse = 0;
+      if (activitiesError) {
+        console.error('Error fetching activities:', activitiesError);
+        // Don't throw here, just set empty activities
+      }
       
-      requests.forEach(req => {
-        if (req.status === 'completed' && req.requested_at && req.completion_time) {
-          const requestTime = new Date(req.requested_at);
-          const completionTime = new Date(req.completion_time);
-          const responseTime = (completionTime - requestTime) / (1000 * 60); // minutes
-          totalResponseTime += responseTime;
-          completedWithResponse++;
-        }
-      });
+      setActivities(activitiesData || []);
       
-      const averageResponseTime = completedWithResponse > 0 
-        ? Math.round(totalResponseTime / completedWithResponse) 
-        : 0;
+      // Fetch notifications
+      const { data: notificationsData, error: notificationsError } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('read', false)
+        .order('created_at', { ascending: false });
       
-      setStats({
-        pendingRequests,
-        activeTransports,
-        completedToday,
-        averageResponseTime
-      });
+      if (notificationsError) {
+        console.error('Error fetching notifications:', notificationsError);
+        // Don't throw here, just set empty notifications
+      }
       
-      // Create sample activities based on recent changes
-      const recentActivities = requests
-        .filter(req => new Date(req.requested_at) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) // Last 7 days
-        .sort((a, b) => new Date(b.requested_at) - new Date(a.requested_at))
-        .slice(0, 5)
-        .map(req => ({
-          id: `activity-${req.id}`,
-          type: 'transport_created',
-          content: `Transport request for ${req.patient_name} was created`,
-          timestamp: req.requested_at,
-          data: req
-        }));
+      setNotifications(notificationsData || []);
       
-      setActivities(recentActivities);
-      
-      // Create sample notifications
-      setNotifications([
-        {
-          id: 'notification-1',
-          title: 'System Update',
-          content: 'Patient PATH will undergo maintenance tonight at 2 AM. Service will be restored by 4 AM.',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          read: false,
-          type: 'system'
-        },
-        {
-          id: 'notification-2',
-          title: 'New Provider Available',
-          content: 'Rapid Response Ambulance is now available for transport in your area.',
-          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          read: true,
-          type: 'info'
-        }
-      ]);
-      
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      setError('Failed to load dashboard data. Please try again.');
-    } finally {
+      // Everything loaded successfully
       setIsLoading(false);
+    } catch (error) {
+      console.error('Dashboard error:', error);
+      setError(error.message || 'Failed to load dashboard data');
+      setIsLoading(false);
+      
+      // Set default empty values on error
+      setStats({
+        total_transports: 0,
+        completed_transports: 0,
+        active_transports: 0,
+        pending_approval: 0
+      });
+      setActivities([]);
+      setNotifications([]);
     }
   }, [user]);
 
   useEffect(() => {
-    if (!user) return; // Skip if user isn't loaded
+    const fetchDashboardData = async () => {
+      if (!user) return;
+      
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Fetch dashboard stats
+        const { data: statsData, error: statsError } = await supabase
+          .from('dashboard_stats')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (statsError && !statsError.message.includes('No rows found')) {
+          console.error('Error fetching stats:', statsError);
+          throw new Error('Failed to load dashboard statistics');
+        }
+        
+        // If we don't have stats yet, create default ones
+        if (!statsData) {
+          const defaultStats = {
+            total_transports: 0,
+            completed_transports: 0,
+            active_transports: 0,
+            pending_approval: 0
+          };
+          
+          setStats(defaultStats);
+        } else {
+          setStats(statsData);
+        }
+        
+        // Fetch recent activities
+        const { data: activitiesData, error: activitiesError } = await supabase
+          .from('activities')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+        
+        if (activitiesError) {
+          console.error('Error fetching activities:', activitiesError);
+          // Don't throw here, just set empty activities
+        }
+        
+        setActivities(activitiesData || []);
+        
+        // Fetch notifications
+        const { data: notificationsData, error: notificationsError } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('read', false)
+          .order('created_at', { ascending: false });
+        
+        if (notificationsError) {
+          console.error('Error fetching notifications:', notificationsError);
+          // Don't throw here, just set empty notifications
+        }
+        
+        setNotifications(notificationsData || []);
+        
+        // Everything loaded successfully
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Dashboard error:', error);
+        setError(error.message || 'Failed to load dashboard data');
+        setIsLoading(false);
+        
+        // Set default empty values on error
+        setStats({
+          total_transports: 0,
+          completed_transports: 0,
+          active_transports: 0,
+          pending_approval: 0
+        });
+        setActivities([]);
+        setNotifications([]);
+      }
+    };
     
     fetchDashboardData();
     
-    // Set up real-time listeners for updates
-    const transportChannel = supabase
-      .channel('transport_changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'transport_requests',
-          filter: `hospital_id=eq.${user.id}`
-        }, 
-        (payload) => {
-          console.log('Transport change received!', payload);
-          // Update dashboard data based on changes
-          fetchDashboardData();
-          // Add to activity feed
-          if (payload.eventType === 'INSERT') {
-            addActivity('transport_created', payload.new);
-          } else if (payload.eventType === 'UPDATE') {
-            addActivity('transport_updated', payload.new);
-          }
-        }
-      )
-      .subscribe();
+    // Set up real-time listeners
+    const setupSubscriptions = async () => {
+      if (!user) return;
       
-    return () => {
-      supabase.removeChannel(transportChannel);
+      try {
+        // Listen for new transport requests
+        const transportChannel = supabase
+          .channel('transport_requests_channel')
+          .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'transport_requests',
+            filter: `hospital_id=eq.${user.id}`
+          }, payload => {
+            console.log('Transport request changed:', payload);
+            // Update data based on the change
+            fetchDashboardData();
+          })
+          .subscribe();
+          
+        // Listen for new notifications
+        const notificationChannel = supabase
+          .channel('notifications_channel')
+          .on('postgres_changes', { 
+            event: 'INSERT', 
+            schema: 'public', 
+            table: 'notifications',
+            filter: `user_id=eq.${user.id}`
+          }, payload => {
+            console.log('New notification:', payload);
+            setNotifications(current => [payload.new, ...current]);
+          })
+          .subscribe();
+          
+        // Cleanup function
+        return () => {
+          supabase.removeChannel(transportChannel);
+          supabase.removeChannel(notificationChannel);
+        };
+      } catch (error) {
+        console.error('Error setting up real-time listeners:', error);
+      }
     };
-  }, [user, fetchDashboardData]);
+    
+    const cleanup = setupSubscriptions();
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [user, supabase]);
 
   const addActivity = (type, data) => {
     const activityTypes = {
@@ -243,7 +331,7 @@ const HospitalDashboard = () => {
               <div className="stats-grid">
                 <StatCard
                   title="Pending Requests"
-                  value={stats.pendingRequests}
+                  value={stats.pending_approval}
                   icon={
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10"></circle>
@@ -254,7 +342,7 @@ const HospitalDashboard = () => {
                 />
                 <StatCard
                   title="Active Transports"
-                  value={stats.activeTransports}
+                  value={stats.active_transports}
                   icon={
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
@@ -268,7 +356,7 @@ const HospitalDashboard = () => {
                 />
                 <StatCard
                   title="Completed Today"
-                  value={stats.completedToday}
+                  value={stats.completed_transports}
                   icon={
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>

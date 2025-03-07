@@ -19,187 +19,188 @@ const AmbulanceDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState({
-    availableRequests: 0,
-    assignedCases: 0,
-    completedToday: 0,
-    averageResponseTime: 0
+    total_transports: 0,
+    completed_transports: 0,
+    active_cases: 0,
+    available_vehicles: 0
   });
   const [activities, setActivities] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [activeView, setActiveView] = useState('dashboard');
   const [selectedCase, setSelectedCase] = useState(null);
   const [showCommunication, setShowCommunication] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeCases, setActiveCases] = useState([]);
 
   const fetchDashboardData = useCallback(async () => {
-    if (!user) return; // Skip if user isn't loaded yet
-    
-    setLoading(true);
-    setError(null);
+    if (!user) return;
     
     try {
-      // Fetch available transport requests
-      const { data: requests, error: requestsError } = await supabase
+      setIsLoading(true);
+      setError(null);
+      
+      // Fetch dashboard stats
+      const { data: statsData, error: statsError } = await supabase
+        .from('ambulance_stats')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (statsError && !statsError.message.includes('No rows found')) {
+        console.error('Error fetching stats:', statsError);
+        throw new Error('Failed to load dashboard statistics');
+      }
+      
+      // If we don't have stats yet, create default ones
+      if (!statsData) {
+        const defaultStats = {
+          total_transports: 0,
+          completed_transports: 0,
+          active_cases: 0,
+          available_vehicles: 0
+        };
+        
+        setStats(defaultStats);
+      } else {
+        setStats(statsData);
+      }
+      
+      // Fetch active cases
+      const { data: casesData, error: casesError } = await supabase
         .from('transport_requests')
         .select('*')
-        .eq('status', 'pending');
-      
-      if (requestsError) throw requestsError;
-      
-      // Fetch assigned cases
-      const { data: assignments, error: assignmentsError } = await supabase
-        .from('transport_assignments')
-        .select(`
-          *,
-          transport_request:transport_requests(*)
-        `)
         .eq('ambulance_id', user.id)
-        .not('status', 'eq', 'completed');
+        .in('status', ['assigned', 'in_progress'])
+        .order('created_at', { ascending: false });
       
-      if (assignmentsError) throw assignmentsError;
+      if (casesError) {
+        console.error('Error fetching active cases:', casesError);
+        // Don't throw, just set empty cases
+      }
       
-      // Fetch completed cases for today
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      setActiveCases(casesData || []);
       
-      const { data: completedCases, error: completedError } = await supabase
-        .from('transport_assignments')
-        .select('*')
-        .eq('ambulance_id', user.id)
-        .eq('status', 'completed')
-        .gte('completion_time', today);
-      
-      if (completedError) throw completedError;
-      
-      // Calculate average response time (in minutes)
-      const { data: allCompleted, error: allCompletedError } = await supabase
-        .from('transport_assignments')
-        .select(`
-          *,
-          transport_request:transport_requests(requested_at)
-        `)
-        .eq('ambulance_id', user.id)
-        .eq('status', 'completed')
-        .not('completion_time', 'is', null);
-      
-      if (allCompletedError) throw allCompletedError;
-      
-      let totalResponseTime = 0;
-      let completedWithResponse = 0;
-      
-      allCompleted?.forEach(assignment => {
-        if (assignment.completion_time && assignment.transport_request?.requested_at) {
-          const requestTime = new Date(assignment.transport_request.requested_at);
-          const completionTime = new Date(assignment.completion_time);
-          const responseTime = (completionTime - requestTime) / (1000 * 60); // minutes
-          totalResponseTime += responseTime;
-          completedWithResponse++;
-        }
-      });
-      
-      const averageResponseTime = completedWithResponse > 0 
-        ? Math.round(totalResponseTime / completedWithResponse) 
-        : 0;
-      
-      setStats({
-        availableRequests: requests?.length || 0,
-        assignedCases: assignments?.length || 0,
-        completedToday: completedCases?.length || 0,
-        averageResponseTime
-      });
-      
-      // Create sample activities based on recent assignments
-      const recentActivities = assignments
-        ?.sort((a, b) => new Date(b.assigned_at) - new Date(a.assigned_at))
-        .slice(0, 5)
-        .map(assignment => ({
-          id: `activity-${assignment.id}`,
-          type: 'assignment_created',
-          content: `New transport case assigned from ${assignment.transport_request?.hospital_name || 'hospital'}`,
-          timestamp: assignment.assigned_at,
-          data: assignment
-        })) || [];
-      
-      setActivities(recentActivities);
-      
-      // Create sample notifications
-      setNotifications([
-        {
-          id: 'notification-1',
-          title: 'System Update',
-          content: 'Patient PATH will undergo maintenance tonight at 2 AM. Service will be restored by 4 AM.',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          read: false,
-          type: 'system'
-        },
-        {
-          id: 'notification-2',
-          title: 'New Assignment Policy',
-          content: 'Starting next week, all ambulances must confirm pickup within 10 minutes of assignment.',
-          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          read: true,
-          type: 'info'
-        }
-      ]);
-      
+      // Everything loaded successfully
+      setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      setError('Failed to load dashboard data. Please try again.');
-    } finally {
-      setLoading(false);
+      console.error('Dashboard error:', error);
+      setError(error.message || 'Failed to load dashboard data');
+      setIsLoading(false);
+      
+      // Set default empty values on error
+      setStats({
+        total_transports: 0,
+        completed_transports: 0,
+        active_cases: 0,
+        available_vehicles: 0
+      });
+      setActiveCases([]);
     }
   }, [user]);
 
   useEffect(() => {
-    if (!user) return; // Skip if user isn't loaded yet
+    const fetchDashboardData = async () => {
+      if (!user) return;
+      
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Fetch dashboard stats
+        const { data: statsData, error: statsError } = await supabase
+          .from('ambulance_stats')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (statsError && !statsError.message.includes('No rows found')) {
+          console.error('Error fetching stats:', statsError);
+          throw new Error('Failed to load dashboard statistics');
+        }
+        
+        // If we don't have stats yet, create default ones
+        if (!statsData) {
+          const defaultStats = {
+            total_transports: 0,
+            completed_transports: 0,
+            active_cases: 0,
+            available_vehicles: 0
+          };
+          
+          setStats(defaultStats);
+        } else {
+          setStats(statsData);
+        }
+        
+        // Fetch active cases
+        const { data: casesData, error: casesError } = await supabase
+          .from('transport_requests')
+          .select('*')
+          .eq('ambulance_id', user.id)
+          .in('status', ['assigned', 'in_progress'])
+          .order('created_at', { ascending: false });
+        
+        if (casesError) {
+          console.error('Error fetching active cases:', casesError);
+          // Don't throw, just set empty cases
+        }
+        
+        setActiveCases(casesData || []);
+        
+        // Everything loaded successfully
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Dashboard error:', error);
+        setError(error.message || 'Failed to load dashboard data');
+        setIsLoading(false);
+        
+        // Set default empty values on error
+        setStats({
+          total_transports: 0,
+          completed_transports: 0,
+          active_cases: 0,
+          available_vehicles: 0
+        });
+        setActiveCases([]);
+      }
+    };
     
     fetchDashboardData();
     
-    // Set up real-time listeners for updates
-    const assignmentsChannel = supabase
-      .channel('assignment_changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'transport_assignments',
-          filter: `ambulance_id=eq.${user.id}`
-        }, 
-        (payload) => {
-          console.log('Assignment change received!', payload);
-          // Update dashboard data based on changes
-          fetchDashboardData();
-          // Add to activity feed
-          if (payload.eventType === 'INSERT') {
-            addActivity('assignment_created', payload.new);
-          } else if (payload.eventType === 'UPDATE') {
-            addActivity('assignment_updated', payload.new);
-          }
-        }
-      )
-      .subscribe();
-
-    const requestsChannel = supabase
-      .channel('requests_changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'transport_requests',
-          filter: `status=eq.pending`
-        }, 
-        (payload) => {
-          console.log('Request change received!', payload);
-          // Update dashboard data based on changes
-          fetchDashboardData();
-        }
-      )
-      .subscribe();
+    // Set up real-time listeners
+    const setupSubscriptions = async () => {
+      if (!user) return;
       
-    return () => {
-      supabase.removeChannel(assignmentsChannel);
-      supabase.removeChannel(requestsChannel);
+      try {
+        // Listen for changes to transport requests
+        const transportChannel = supabase
+          .channel('ambulance_transport_changes')
+          .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'transport_requests',
+            filter: `ambulance_id=eq.${user.id}`
+          }, payload => {
+            console.log('Transport request changed:', payload);
+            // Reload all dashboard data when a transport changes
+            fetchDashboardData();
+          })
+          .subscribe();
+        
+        // Cleanup function
+        return () => {
+          supabase.removeChannel(transportChannel);
+        };
+      } catch (error) {
+        console.error('Error setting up real-time listeners:', error);
+      }
     };
-  }, [user, fetchDashboardData]);
+    
+    const cleanup = setupSubscriptions();
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [user, supabase]);
 
   const addActivity = (type, data) => {
     const activityTypes = {
@@ -273,7 +274,7 @@ const AmbulanceDashboard = () => {
               <div className="stats-grid">
                 <StatCard
                   title="Available Requests"
-                  value={stats.availableRequests}
+                  value={stats.available_vehicles}
                   icon={
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
@@ -283,7 +284,7 @@ const AmbulanceDashboard = () => {
                 />
                 <StatCard
                   title="Assigned Cases"
-                  value={stats.assignedCases}
+                  value={stats.active_cases}
                   icon={
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
@@ -295,7 +296,7 @@ const AmbulanceDashboard = () => {
                 />
                 <StatCard
                   title="Completed Today"
-                  value={stats.completedToday}
+                  value={stats.completed_transports}
                   icon={
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>

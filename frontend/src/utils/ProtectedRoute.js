@@ -11,24 +11,35 @@ const ProtectedRoute = ({ children, requiredUserType }) => {
 
   // Show loading state while authentication is being determined
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="loading-container">Loading authentication...</div>;
   }
 
   // Check if user is authenticated
   const isAuthenticated = !!user;
   
-  // Special case for developer account - can access everything
-  if (isAuthenticated && user.email === DEV_EMAIL) {
-    return children;
-  }
-  
-  // If not authenticated, redirect to login page with current location
+  // If not authenticated, redirect to login page
   if (!isAuthenticated) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
   
-  // If user type is required and doesn't match, redirect to unauthorized
+  // Special case for developer account - can access everything
+  if (isAuthenticated && 
+      (user.email === DEV_EMAIL || 
+       user.user_metadata?.user_type === 'developer' || 
+       userType === 'developer')) {
+    return children;
+  }
+  
+  // If user type is required and doesn't match, redirect to unauthorized or the appropriate dashboard
   if (requiredUserType && userType !== requiredUserType) {
+    // If user has a valid type but tries to access another dashboard type, redirect to their dashboard
+    if (userType === 'hospital') {
+      return <Navigate to="/hospital-dashboard" replace />;
+    } else if (userType === 'ambulance') {
+      return <Navigate to="/ambulance-dashboard" replace />;
+    }
+    
+    // Otherwise, unauthorized
     return <Navigate to="/unauthorized" replace />;
   }
   

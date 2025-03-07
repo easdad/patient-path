@@ -11,16 +11,24 @@ import { supabase } from './utils/supabaseClient';
 const DEV_EMAIL = 'easdad.jm@gmail.com';
 
 const DevToolbarWrapper = () => {
-  const { user } = useAuth();
+  const { user, userType } = useAuth();
   const [showDevTools, setShowDevTools] = useState(false);
   
   useEffect(() => {
-    if (user && user.email === DEV_EMAIL) {
-      setShowDevTools(true);
-    } else {
-      setShowDevTools(false);
-    }
-  }, [user]);
+    const checkDevStatus = async () => {
+      if (!user) return setShowDevTools(false);
+      
+      // Check multiple ways to confirm this is the developer account
+      const isDev = 
+        user.email === DEV_EMAIL || 
+        user.user_metadata?.user_type === 'developer' || 
+        userType === 'developer';
+      
+      setShowDevTools(isDev);
+    };
+    
+    checkDevStatus();
+  }, [user, userType]);
   
   return showDevTools ? <DevToolbar /> : null;
 };

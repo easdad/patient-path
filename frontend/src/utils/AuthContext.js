@@ -63,17 +63,29 @@ export function AuthProvider({ children }) {
 
   const fetchUserType = async (user) => {
     try {
-      // Special case for developer account
+      // Special case for developer account - highest priority
       if (user.email === DEV_EMAIL) {
         setUserType('developer');
         setIsDeveloper(true);
+        
+        // Ensure metadata is set properly
+        try {
+          await supabase.auth.updateUser({
+            data: {
+              user_type: 'developer'
+            }
+          });
+        } catch (err) {
+          console.log('Note: Could not update user metadata', err);
+        }
         return;
       }
       
       // First check user metadata
       if (user.user_metadata && user.user_metadata.user_type) {
-        setUserType(user.user_metadata.user_type);
-        setIsDeveloper(user.user_metadata.user_type === 'developer');
+        const type = user.user_metadata.user_type;
+        setUserType(type);
+        setIsDeveloper(type === 'developer');
         return;
       }
       
@@ -90,8 +102,20 @@ export function AuthProvider({ children }) {
       }
       
       if (data) {
-        setUserType(data.user_type);
-        setIsDeveloper(data.user_type === 'developer');
+        const type = data.user_type;
+        setUserType(type);
+        setIsDeveloper(type === 'developer');
+        
+        // Sync with user metadata for easier access
+        try {
+          await supabase.auth.updateUser({
+            data: {
+              user_type: type
+            }
+          });
+        } catch (err) {
+          console.log('Note: Could not update user metadata', err);
+        }
       }
     } catch (error) {
       console.error('Error in fetchUserType:', error);
