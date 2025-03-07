@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './LandingPage.css';
 import supabase from '../../utils/supabaseClient';
+import { AUTH_CONFIG } from '../../config/auth.config';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -31,19 +32,53 @@ const LandingPage = () => {
         password: formData.password
       });
       
-      if (signInError) throw signInError;
+      if (signInError) {
+        console.error('Sign in error:', signInError);
+        throw signInError;
+      }
+      
+      if (!data?.user) {
+        throw new Error('No user returned from authentication. Account may not exist.');
+      }
       
       console.log('Login successful', data);
       
-      // Route to appropriate dashboard based on user type
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get user details
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error('Error getting user details:', userError);
+        throw userError;
+      }
+      
+      const user = userData?.user;
+      if (!user) {
+        throw new Error('Failed to retrieve user details after login.');
+      }
+      
+      // Check for role in app_metadata first (most secure)
+      if (user?.app_metadata?.role === 'developer') {
+        navigate('/dev-dashboard');
+        return;
+      }
+      
+      // Check user_metadata (for backward compatibility)
       const userType = user?.user_metadata?.user_type || 'hospital';
       
-      const dashboardRoute = userType === 'hospital' ? '/hospital-dashboard' : '/ambulance-dashboard';
+      // Route to appropriate dashboard based on user type
+      const dashboardRoute = userType === 'ambulance' ? '/ambulance-dashboard' : '/hospital-dashboard';
       navigate(dashboardRoute);
     } catch (err) {
       console.error('Authentication error:', err);
-      setError(err.message || 'An error occurred during authentication');
+      
+      // Handle specific error cases
+      if (err.message.includes('Invalid login credentials') || 
+          err.message.includes('Email not confirmed') ||
+          err.message.includes('No user')) {
+        setError('Invalid email or password. Please check your credentials or create an account.');
+      } else {
+        setError(err.message || 'An error occurred during authentication');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -116,6 +151,8 @@ const LandingPage = () => {
           <p className="welcome-text">
             Streamlining patient transport coordination between healthcare facilities and 
             ambulance services. Please log in or create an account to continue.
+            <br/>
+            <span className="update-notice">✨ Now with improved workflow and real-time updates! ✨</span>
           </p>
         </div>
 
