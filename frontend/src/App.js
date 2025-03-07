@@ -6,6 +6,7 @@ import LoginPage from './components/Auth/LoginPage';
 import RegistrationPage from './components/Auth/RegistrationPage';
 import AuthCallback from './components/Auth/AuthCallback';
 import VerificationSuccess from './components/Auth/VerificationSuccess';
+import ResetPassword from './components/Auth/ResetPassword';
 import { AuthProvider } from './utils/AuthContext';
 import ProtectedRoute from './utils/ProtectedRoute';
 import Navbar from './components/common/Navbar';
@@ -56,6 +57,7 @@ function App() {
               element={<Layout><RegistrationPage /></Layout>} 
             />
             
+            {/* Auth related routes */}
             <Route 
               path="/auth/callback" 
               element={<AuthCallback />} 
@@ -64,6 +66,11 @@ function App() {
             <Route 
               path="/auth/verification-success" 
               element={<VerificationSuccess />} 
+            />
+            
+            <Route 
+              path="/auth/reset-password" 
+              element={<ResetPassword />} 
             />
             
             {/* Protected routes */}
