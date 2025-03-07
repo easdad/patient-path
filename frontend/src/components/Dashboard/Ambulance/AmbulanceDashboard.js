@@ -39,6 +39,54 @@ const AmbulanceDashboard = () => {
       setIsLoading(true);
       setError(null);
       
+      // MOCK DATA - Use this instead of trying to fetch from non-existent tables
+      const mockStats = {
+        total_transports: 24,
+        completed_transports: 18,
+        active_cases: 3,
+        available_vehicles: 5
+      };
+      
+      const mockActiveCases = [
+        {
+          id: 1,
+          patient_name: "John Smith",
+          status: "in_progress",
+          priority: "high",
+          pickup_location: "Memorial Hospital",
+          destination: "County General",
+          created_at: new Date().toISOString(),
+          estimated_arrival: new Date(Date.now() + 25 * 60000).toISOString(),
+        },
+        {
+          id: 2,
+          patient_name: "Mary Johnson",
+          status: "assigned",
+          priority: "medium",
+          pickup_location: "Sunset Clinic",
+          destination: "Riverside Medical Center",
+          created_at: new Date(Date.now() - 35 * 60000).toISOString(),
+          estimated_arrival: new Date(Date.now() + 45 * 60000).toISOString(),
+        },
+        {
+          id: 3,
+          patient_name: "Robert Brown",
+          status: "in_progress",
+          priority: "low",
+          pickup_location: "Westside Medical",
+          destination: "Home Care",
+          created_at: new Date(Date.now() - 120 * 60000).toISOString(),
+          estimated_arrival: new Date(Date.now() + 15 * 60000).toISOString(),
+        }
+      ];
+      
+      // Set mock data
+      setStats(mockStats);
+      setActiveCases(mockActiveCases);
+      setIsLoading(false);
+      
+      /* 
+      // COMMENTED OUT - REAL DATA FETCHING (for future use)
       // Fetch dashboard stats
       const { data: statsData, error: statsError } = await supabase
         .from('ambulance_stats')
@@ -79,9 +127,8 @@ const AmbulanceDashboard = () => {
       }
       
       setActiveCases(casesData || []);
-      
-      // Everything loaded successfully
       setIsLoading(false);
+      */
     } catch (error) {
       console.error('Dashboard error:', error);
       setError(error.message || 'Failed to load dashboard data');
@@ -106,6 +153,54 @@ const AmbulanceDashboard = () => {
         setIsLoading(true);
         setError(null);
         
+        // MOCK DATA - Use this instead of trying to fetch from non-existent tables
+        const mockStats = {
+          total_transports: 24,
+          completed_transports: 18,
+          active_cases: 3,
+          available_vehicles: 5
+        };
+        
+        const mockActiveCases = [
+          {
+            id: 1,
+            patient_name: "John Smith",
+            status: "in_progress",
+            priority: "high",
+            pickup_location: "Memorial Hospital",
+            destination: "County General",
+            created_at: new Date().toISOString(),
+            estimated_arrival: new Date(Date.now() + 25 * 60000).toISOString(),
+          },
+          {
+            id: 2,
+            patient_name: "Mary Johnson",
+            status: "assigned",
+            priority: "medium",
+            pickup_location: "Sunset Clinic",
+            destination: "Riverside Medical Center",
+            created_at: new Date(Date.now() - 35 * 60000).toISOString(),
+            estimated_arrival: new Date(Date.now() + 45 * 60000).toISOString(),
+          },
+          {
+            id: 3,
+            patient_name: "Robert Brown",
+            status: "in_progress",
+            priority: "low",
+            pickup_location: "Westside Medical",
+            destination: "Home Care",
+            created_at: new Date(Date.now() - 120 * 60000).toISOString(),
+            estimated_arrival: new Date(Date.now() + 15 * 60000).toISOString(),
+          }
+        ];
+        
+        // Set mock data
+        setStats(mockStats);
+        setActiveCases(mockActiveCases);
+        setIsLoading(false);
+        
+        /* 
+        // COMMENTED OUT - REAL DATA FETCHING (for future use)
         // Fetch dashboard stats
         const { data: statsData, error: statsError } = await supabase
           .from('ambulance_stats')
@@ -146,9 +241,8 @@ const AmbulanceDashboard = () => {
         }
         
         setActiveCases(casesData || []);
-        
-        // Everything loaded successfully
         setIsLoading(false);
+        */
       } catch (error) {
         console.error('Dashboard error:', error);
         setError(error.message || 'Failed to load dashboard data');
@@ -167,7 +261,8 @@ const AmbulanceDashboard = () => {
     
     fetchDashboardData();
     
-    // Set up real-time listeners
+    // Set up real-time listeners - commented out for now
+    /*
     const setupSubscriptions = async () => {
       if (!user) return;
       
@@ -200,7 +295,11 @@ const AmbulanceDashboard = () => {
     return () => {
       if (cleanup) cleanup();
     };
-  }, [user, supabase]);
+    */
+    
+    // No real cleanup needed since we're not setting up real-time listeners
+    return () => {};
+  }, [user]);
 
   const addActivity = (type, data) => {
     const activityTypes = {

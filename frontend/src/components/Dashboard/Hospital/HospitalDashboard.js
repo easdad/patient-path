@@ -37,6 +37,63 @@ const HospitalDashboard = () => {
       setIsLoading(true);
       setError(null);
       
+      // MOCK DATA - Use this instead of trying to fetch from non-existent tables
+      const mockStats = {
+        total_transports: 42,
+        completed_transports: 35,
+        active_transports: 4,
+        pending_approval: 3
+      };
+      
+      const mockActivities = [
+        {
+          id: 1,
+          type: 'transport_request',
+          content: 'Transport request for patient #12458 was created',
+          created_at: new Date(Date.now() - 35 * 60000).toISOString(),
+          status: 'pending'
+        },
+        {
+          id: 2,
+          type: 'transport_assigned',
+          content: 'City Ambulance Service accepted transport request #4589',
+          created_at: new Date(Date.now() - 120 * 60000).toISOString(),
+          status: 'active'
+        },
+        {
+          id: 3,
+          type: 'transport_completed',
+          content: 'Transport #4582 was completed successfully',
+          created_at: new Date(Date.now() - 240 * 60000).toISOString(),
+          status: 'completed'
+        }
+      ];
+      
+      const mockNotifications = [
+        {
+          id: 1,
+          title: 'Transport Request Update',
+          message: 'Your transport request for patient Johnson has been accepted',
+          created_at: new Date(Date.now() - 45 * 60000).toISOString(),
+          read: false
+        },
+        {
+          id: 2,
+          title: 'System Maintenance',
+          message: 'The system will be down for maintenance tonight from 2AM to 4AM',
+          created_at: new Date(Date.now() - 180 * 60000).toISOString(),
+          read: false
+        }
+      ];
+      
+      // Set mock data
+      setStats(mockStats);
+      setActivities(mockActivities);
+      setNotifications(mockNotifications);
+      setIsLoading(false);
+      
+      /* 
+      // COMMENTED OUT - REAL DATA FETCHING (for future use)
       // Fetch dashboard stats
       const { data: statsData, error: statsError } = await supabase
         .from('dashboard_stats')
@@ -92,9 +149,8 @@ const HospitalDashboard = () => {
       }
       
       setNotifications(notificationsData || []);
-      
-      // Everything loaded successfully
       setIsLoading(false);
+      */
     } catch (error) {
       console.error('Dashboard error:', error);
       setError(error.message || 'Failed to load dashboard data');
@@ -120,6 +176,63 @@ const HospitalDashboard = () => {
         setIsLoading(true);
         setError(null);
         
+        // MOCK DATA - Use this instead of trying to fetch from non-existent tables
+        const mockStats = {
+          total_transports: 42,
+          completed_transports: 35,
+          active_transports: 4,
+          pending_approval: 3
+        };
+        
+        const mockActivities = [
+          {
+            id: 1,
+            type: 'transport_request',
+            content: 'Transport request for patient #12458 was created',
+            created_at: new Date(Date.now() - 35 * 60000).toISOString(),
+            status: 'pending'
+          },
+          {
+            id: 2,
+            type: 'transport_assigned',
+            content: 'City Ambulance Service accepted transport request #4589',
+            created_at: new Date(Date.now() - 120 * 60000).toISOString(),
+            status: 'active'
+          },
+          {
+            id: 3,
+            type: 'transport_completed',
+            content: 'Transport #4582 was completed successfully',
+            created_at: new Date(Date.now() - 240 * 60000).toISOString(),
+            status: 'completed'
+          }
+        ];
+        
+        const mockNotifications = [
+          {
+            id: 1,
+            title: 'Transport Request Update',
+            message: 'Your transport request for patient Johnson has been accepted',
+            created_at: new Date(Date.now() - 45 * 60000).toISOString(),
+            read: false
+          },
+          {
+            id: 2,
+            title: 'System Maintenance',
+            message: 'The system will be down for maintenance tonight from 2AM to 4AM',
+            created_at: new Date(Date.now() - 180 * 60000).toISOString(),
+            read: false
+          }
+        ];
+        
+        // Set mock data
+        setStats(mockStats);
+        setActivities(mockActivities);
+        setNotifications(mockNotifications);
+        setIsLoading(false);
+        
+        /* 
+        // COMMENTED OUT - REAL DATA FETCHING (for future use)
         // Fetch dashboard stats
         const { data: statsData, error: statsError } = await supabase
           .from('dashboard_stats')
@@ -175,9 +288,8 @@ const HospitalDashboard = () => {
         }
         
         setNotifications(notificationsData || []);
-        
-        // Everything loaded successfully
         setIsLoading(false);
+        */
       } catch (error) {
         console.error('Dashboard error:', error);
         setError(error.message || 'Failed to load dashboard data');
@@ -197,7 +309,8 @@ const HospitalDashboard = () => {
     
     fetchDashboardData();
     
-    // Set up real-time listeners
+    // Set up real-time listeners - commented out for now
+    /*
     const setupSubscriptions = async () => {
       if (!user) return;
       
@@ -245,7 +358,11 @@ const HospitalDashboard = () => {
     return () => {
       if (cleanup) cleanup();
     };
-  }, [user, supabase]);
+    */
+    
+    // No real cleanup needed since we're not setting up real-time listeners
+    return () => {};
+  }, [user]);
 
   const addActivity = (type, data) => {
     const activityTypes = {
