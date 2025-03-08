@@ -72,7 +72,6 @@ const routes = [
       <ProtectedRoute requiredUserType="developer">
         <Layout>
           <DevDashboard />
-          <DevToolbar />
         </Layout>
       </ProtectedRoute>
     ),

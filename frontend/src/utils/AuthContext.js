@@ -1,8 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from './supabaseClient';
-
-// Developer account email for special permissions
-const DEV_EMAIL = 'easdad.jm@gmail.com';
+import { AUTH_CONFIG } from '../config/auth.config';
 
 const AuthContext = createContext();
 
@@ -17,79 +15,64 @@ export function AuthProvider({ children }) {
   const [userType, setUserType] = useState(null);
   const [isDeveloper, setIsDeveloper] = useState(false);
 
-  useEffect(() => {
-    // Get initial session
-    const initializeAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
+  const initializeAuth = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.auth.getSession();
       
       if (error) {
         console.error('Error getting session:', error);
+        setLoading(false);
+        return;
       }
       
-      setSession(session);
-      setUser(session?.user || null);
+      setSession(data.session);
       
-      if (session?.user) {
-        fetchUserType(session.user);
+      if (data.session?.user) {
+        setUser(data.session.user);
+        await fetchUserRole(data.session.user);
       }
-      
+    } catch (error) {
+      console.error('Error in initializeAuth:', error);
+    } finally {
       setLoading(false);
-    };
+    }
+  }, []);
 
+  useEffect(() => {
     initializeAuth();
-
-    // Listen for auth changes
+    
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log(`Auth event: ${event}`);
         setSession(session);
         setUser(session?.user || null);
         
         if (session?.user) {
-          fetchUserType(session.user);
+          await fetchUserRole(session.user);
         } else {
           setUserType(null);
           setIsDeveloper(false);
         }
-        
-        setLoading(false);
       }
     );
-
+    
     return () => {
-      authListener?.subscription?.unsubscribe();
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
     };
-  }, []);
+  }, [initializeAuth]);
 
-  const fetchUserType = async (user) => {
+  const fetchUserRole = async (user) => {
     try {
-      // Special case for developer account - highest priority
-      if (user.email === DEV_EMAIL) {
-        setUserType('developer');
-        setIsDeveloper(true);
-        
-        // Ensure metadata is set properly
-        try {
-          await supabase.auth.updateUser({
-            data: {
-              user_type: 'developer'
-            }
-          });
-        } catch (err) {
-          console.log('Note: Could not update user metadata', err);
-        }
+      // Primary source: Check app_metadata.role (most secure)
+      if (user.app_metadata?.role) {
+        const role = user.app_metadata.role;
+        setUserType(role);
+        setIsDeveloper(role === 'developer');
         return;
       }
       
-      // First check user metadata
-      if (user.user_metadata && user.user_metadata.user_type) {
-        const type = user.user_metadata.user_type;
-        setUserType(type);
-        setIsDeveloper(type === 'developer');
-        return;
-      }
-      
-      // If not in metadata, check profiles table
+      // Fallback: Check profiles table
       const { data, error } = await supabase
         .from('profiles')
         .select('user_type')
@@ -98,27 +81,25 @@ export function AuthProvider({ children }) {
       
       if (error) {
         console.error('Error fetching user type:', error);
+        setUserType('hospital'); // Default fallback
+        setIsDeveloper(false);
         return;
       }
       
-      if (data) {
-        const type = data.user_type;
-        setUserType(type);
-        setIsDeveloper(type === 'developer');
+      if (data?.user_type) {
+        setUserType(data.user_type);
+        setIsDeveloper(data.user_type === 'developer');
         
-        // Sync with user metadata for easier access
-        try {
-          await supabase.auth.updateUser({
-            data: {
-              user_type: type
-            }
-          });
-        } catch (err) {
-          console.log('Note: Could not update user metadata', err);
-        }
+        // Optionally: You could sync the user_type to app_metadata.role here
+        // using a server-side function, but that would require additional setup
+      } else {
+        setUserType('hospital'); // Default fallback
+        setIsDeveloper(false);
       }
     } catch (error) {
-      console.error('Error in fetchUserType:', error);
+      console.error('Error in fetchUserRole:', error);
+      setUserType('hospital'); // Default fallback
+      setIsDeveloper(false);
     }
   };
 
@@ -126,34 +107,35 @@ export function AuthProvider({ children }) {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
       });
       
       if (error) throw error;
       
-      return { data, error: null };
+      return { success: true, data };
     } catch (error) {
       console.error('Error signing in:', error);
-      return { data: null, error };
+      return { success: false, error };
     }
   };
 
   const signUp = async (email, password, userData) => {
     try {
+      // Set up user account with user_type in metadata
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: userData
-        }
+          data: userData,
+        },
       });
       
       if (error) throw error;
       
-      return { data, error: null };
+      return { success: true, data };
     } catch (error) {
       console.error('Error signing up:', error);
-      return { data: null, error };
+      return { success: false, error };
     }
   };
 
@@ -161,6 +143,10 @@ export function AuthProvider({ children }) {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      setUser(null);
+      setSession(null);
+      setUserType(null);
+      setIsDeveloper(false);
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -169,15 +155,15 @@ export function AuthProvider({ children }) {
   const resetPassword = async (email) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: window.location.origin + '/reset-password',
       });
       
       if (error) throw error;
       
-      return { error: null };
+      return { success: true };
     } catch (error) {
       console.error('Error resetting password:', error);
-      return { error };
+      return { success: false, error };
     }
   };
 
@@ -189,44 +175,43 @@ export function AuthProvider({ children }) {
       
       if (error) throw error;
       
-      return { error: null };
+      return { success: true };
     } catch (error) {
       console.error('Error updating password:', error);
-      return { error };
+      return { success: false, error };
     }
   };
 
-  // Check if user has developer access
+  // Helper to check if current user has developer access
   const hasDevAccess = () => {
-    return isDeveloper;
+    return isDeveloper || user?.app_metadata?.role === 'developer';
   };
 
-  // Check if user can access a specific dashboard
+  // Helper to check if current user can access a specific dashboard
   const canAccessDashboard = (requiredType) => {
-    if (isDeveloper) return true; // Developers can access all dashboards
+    // Developers can access all dashboards
+    if (hasDevAccess()) return true;
+    
+    // Otherwise, check if user type matches required type
     return userType === requiredType;
   };
 
   const value = {
     user,
     session,
+    loading,
     userType,
     isDeveloper,
-    loading,
     signIn,
     signUp,
     signOut,
     resetPassword,
     updatePassword,
     hasDevAccess,
-    canAccessDashboard
+    canAccessDashboard,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export default AuthContext; 

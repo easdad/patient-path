@@ -4,31 +4,18 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-// Fallback values - for development only, should be removed in production
-const fallbackUrl = 'https://aadkpnqvfnqzxruvbqfa.supabase.co';
-const fallbackKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhZGtwbnF2Zm5xenhydXZicWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMjQwMDUsImV4cCI6MjA1NjgwMDAwNX0.GdQFXPtmijTvO2UhHsyk1V8nd-YY1bCZAtbbfzU3FRM';
-
-// Check if environment variables are properly set
+// Verify environment variables exist
 if (!supabaseUrl || !supabaseAnonKey) {
-  // In development, use fallback values
-  if (process.env.NODE_ENV === 'development') {
-    console.warn(
-      'Supabase URL or key missing from environment variables. Using fallback values.\n' +
-      'This is OK for development, but ensure you set proper environment variables for production.'
-    );
-  } else {
-    // In production, log a more serious error
-    console.error(
-      'Supabase configuration is missing! The application may not function correctly.\n' +
-      'Please make sure that environment variables are properly set.'
-    );
-  }
+  console.error(
+    'CRITICAL ERROR: Missing Supabase environment variables. The application will not function correctly.\n' +
+    'Please ensure REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY are properly set in your .env file.'
+  );
 }
 
 // Create the Supabase client
 const supabase = createClient(
-  supabaseUrl || fallbackUrl,
-  supabaseAnonKey || fallbackKey,
+  supabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       autoRefreshToken: true,
