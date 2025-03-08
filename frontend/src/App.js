@@ -5,10 +5,8 @@ import routes from './routes';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import LoadingState from './components/common/LoadingState';
 import DevToolbar from './components/Dev/DevToolbar';
-import { supabase } from './utils/supabaseClient';
-
-// Developer account email for special permissions
-const DEV_EMAIL = 'easdad.jm@gmail.com';
+import SecurityHelmet from './components/common/SecurityHelmet';
+import './styles/GlobalStyles.css'; // Import global styles
 
 const DevToolbarWrapper = () => {
   const { user, userType } = useAuth();
@@ -18,11 +16,8 @@ const DevToolbarWrapper = () => {
     const checkDevStatus = async () => {
       if (!user) return setShowDevTools(false);
       
-      // Check multiple ways to confirm this is the developer account
-      const isDev = 
-        user.email === DEV_EMAIL || 
-        user.user_metadata?.user_type === 'developer' || 
-        userType === 'developer';
+      // Only show dev tools if user has developer role in app_metadata
+      const isDev = user.app_metadata?.role === 'developer';
       
       setShowDevTools(isDev);
     };
@@ -38,6 +33,7 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <Router>
+          <SecurityHelmet />
           <Suspense fallback={<LoadingState.Page />}>
             <Routes>
               {routes.map((route, index) => (
