@@ -1,0 +1,536 @@
+/* Global Styles for Patient PATH Application */
+:root {
+  /* Color palette */
+  --gradient-primary: linear-gradient(135deg, #5a2c82, #ff8400);
+  --gradient-secondary: linear-gradient(135deg, #4a2768, #e07600);
+  --gradient-footer: linear-gradient(135deg, #3a1e52, #cc6b00);
+  --color-purple: #5a2c82;
+  --color-purple-dark: #4a2768;
+  --color-purple-light: #7e4ba5;
+  --color-orange: #ff8400;
+  --color-orange-dark: #e07600;
+  --color-orange-light: #ff9d33;
+  --color-blue: #4fc3f7;
+  --color-error: #e53935;
+  --color-warning: #ffa000;
+  --color-success: #43a047;
+  --color-info: #2196f3;
+  --color-dark: #2d2d2d;
+  --color-gray-dark: #4a4a4a;
+  --color-gray: #6c6c6c;
+  --color-gray-light: #8e8e8e;
+  --color-gray-lighter: #efefef;
+  --color-background: #f9fafc;
+  --color-white: #ffffff;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.1);
+  
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  
+  /* Layout */
+  --navbar-height: 64px;
+  --max-width-content: 1200px;
+  --max-width-narrow: 900px;
+  --max-width-card: 460px;
+  
+  /* Typography */
+  --font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 2.5rem;
+  --spacing-3xl: 3rem;
+
+  /* Breakpoints for responsive design */
+  --breakpoint-mobile: 480px;   /* Mobile phones */
+  --breakpoint-tablet: 768px;   /* Tablets and large phones */
+  --breakpoint-laptop: 1024px;  /* Small laptops */
+  --breakpoint-desktop: 1280px; /* Large laptops and desktops */
+  --breakpoint-xl: 1536px;      /* Extra large screens */
+  
+  /* Touch-friendly adjustments for mobile */
+  --touch-target-size: 44px;    /* Minimum touch target size for mobile */
+}
+
+/* Apply base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-background);
+  color: var(--color-dark);
+  line-height: 1.5;
+}
+
+/* Container layouts */
+.container {
+  width: 100%;
+  max-width: var(--max-width-content);
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.container-narrow {
+  width: 100%;
+  max-width: var(--max-width-narrow);
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* Card styles */
+.card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-xl);
+}
+
+.card-lg {
+  padding: var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  font-size: var(--font-size-md);
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--gradient-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background-color: white;
+  color: var(--color-purple);
+  border: 1px solid var(--color-purple);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-gray-lighter);
+}
+
+.btn-success {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.btn-error {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.btn-disabled, 
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form elements */
+.form-group {
+  margin-bottom: var(--spacing-xl);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 500;
+  color: var(--color-gray-dark);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: var(--font-size-md);
+  border: 1px solid var(--color-gray-lighter);
+  border-radius: var(--radius-md);
+  background-color: var(--color-white);
+  transition: all 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-purple);
+  box-shadow: 0 0 0 2px rgba(90, 44, 130, 0.2);
+}
+
+/* Message styles */
+.message {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.message-error {
+  background-color: rgba(229, 57, 53, 0.1);
+  color: var(--color-error);
+  border-left: 3px solid var(--color-error);
+}
+
+.message-success {
+  background-color: rgba(67, 160, 71, 0.1);
+  color: var(--color-success);
+  border-left: 3px solid var(--color-success);
+}
+
+.message-warning {
+  background-color: rgba(255, 160, 0, 0.1);
+  color: var(--color-warning);
+  border-left: 3px solid var(--color-warning);
+}
+
+.message-info {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: var(--color-info);
+  border-left: 3px solid var(--color-info);
+}
+
+/* Dashboard common styles */
+.dashboard-container {
+  min-height: calc(100vh - var(--navbar-height));
+  background-color: var(--color-background);
+}
+
+.dashboard-header {
+  background: var(--gradient-primary);
+  color: white;
+  padding: var(--spacing-lg) var(--spacing-xl);
+}
+
+.dashboard-content {
+  padding: var(--spacing-xl);
+}
+
+.dashboard-card {
+  background-color: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+}
+
+.stat-card-title {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray);
+  margin-bottom: var(--spacing-sm);
+}
+
+.stat-card-value {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-purple);
+}
+
+.stat-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-full);
+  color: white;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(90, 44, 130, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(90, 44, 130, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(90, 44, 130, 0);
+  }
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.fw-bold {
+  font-weight: 700;
+}
+
+.fw-medium {
+  font-weight: 500;
+}
+
+.fw-normal {
+  font-weight: 400;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+.gap-lg {
+  gap: var(--spacing-lg);
+}
+
+.mb-sm {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+
+.mt-sm {
+  margin-top: var(--spacing-sm);
+}
+
+.mt-md {
+  margin-top: var(--spacing-md);
+}
+
+.mt-lg {
+  margin-top: var(--spacing-lg);
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  :root {
+    --spacing-2xl: 2rem;
+    --spacing-3xl: 2.5rem;
+  }
+  
+  .container,
+  .container-narrow {
+    padding: 0 var(--spacing-md);
+  }
+  
+  .dashboard-content {
+    padding: var(--spacing-md);
+  }
+}
+
+/* Add responsive breakpoints for all device types */
+@media (max-width: 480px) {
+  :root {
+    /* Smaller spacing for mobile */
+    --spacing-2xl: 1.75rem;
+    --spacing-3xl: 2rem;
+    
+    /* Adjust font sizes for mobile */
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.125rem;
+    --font-size-2xl: 1.25rem;
+    --font-size-3xl: 1.5rem;
+    --font-size-4xl: 1.875rem;
+  }
+  
+  /* Increase touch target sizes for better mobile usability */
+  button, 
+  .btn,
+  input[type="submit"],
+  input[type="button"] {
+    min-height: var(--touch-target-size);
+  }
+  
+  /* Ensure form elements are easier to tap */
+  input, 
+  select, 
+  textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+    min-height: var(--touch-target-size);
+  }
+  
+  /* Make dashboards full-width on mobile */
+  .dashboard-container {
+    padding: 0;
+  }
+  
+  .dashboard-content {
+    padding: var(--spacing-sm);
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 481px) and (max-width: 768px) {
+  .dashboard-content {
+    padding: var(--spacing-md);
+  }
+  
+  /* Adjust grid layouts for tablets */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Adjust dashboard grid layouts for better responsive design */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Add smooth scroll behavior for the entire site */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Improve form styling on all devices */
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: var(--font-size-md);
+  border: 1px solid var(--color-gray-lighter);
+  border-radius: var(--radius-md);
+  background-color: var(--color-white);
+  transition: all 0.2s;
+}
+
+/* Specific fixes for iPhone notch */
+@supports (padding: max(0px)) {
+  .dashboard-header, 
+  .navbar {
+    padding-left: max(var(--spacing-lg), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-lg), env(safe-area-inset-right));
+  }
+  
+  .dashboard-content {
+    padding-bottom: max(var(--spacing-xl), env(safe-area-inset-bottom));
+  }
+}
+
+/* Print styles for reports and documents */
+@media print {
+  body {
+    background: white;
+    font-size: 12pt;
+  }
+  
+  .dashboard-header,
+  .navbar,
+  .dev-toolbar {
+    display: none !important;
+  }
+  
+  .dashboard-content {
+    padding: 0 !important;
+  }
+  
+  .dashboard-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+  }
+} 
