@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../../../utils/supabaseClient';
 import { useAuth } from '../../../utils/AuthContext';
+import LoadingState from '../../../components/common/LoadingState';
+import TransportRequestForm from './TransportRequestForm';
+import TransportRequestList from './TransportRequestList';
 import './HospitalDashboard.css';
 
 // Dashboard Components
 import DashboardNav from './DashboardNav';
-import TransportRequestForm from './TransportRequestForm';
-import TransportRequestList from './TransportRequestList';
 
 // Dashboard widget components
 import StatCard from '../Widgets/StatCard';
 import ActivityFeed from '../Widgets/ActivityFeed';
 import NotificationList from '../Widgets/NotificationList';
-import LoadingState from '../../common/LoadingState';
 import ErrorBoundary from '../../common/ErrorBoundary';
 
 const HospitalDashboard = () => {
@@ -420,123 +419,220 @@ const HospitalDashboard = () => {
   }
 
   return (
-    <ErrorBoundary>
-      <div className="hospital-dashboard">
-        <DashboardNav activeView={activeView} onViewChange={handleViewChange} />
-        
-        <main className="dashboard-content">
-          {isLoading ? (
-            <LoadingState.Section text="Loading dashboard data..." />
-          ) : activeView === 'dashboard' ? (
-            <div className="dashboard-overview">
-              <div className="dashboard-header">
+    <div className="dashboard-container">
+      {isLoading && !error ? (
+        <LoadingState.Page />
+      ) : error ? (
+        <div className="container">
+          <div className="dashboard-card mt-lg">
+            <div className="message message-error">
+              <h3>Error</h3>
+              <p>{error}</p>
+              <button className="btn btn-primary mt-md" onClick={fetchDashboardData}>
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="dashboard-header">
+            <div className="container">
+              <div className="d-flex justify-between align-center">
                 <h1>Hospital Dashboard</h1>
-                <div className="dashboard-actions">
+                <div className="d-flex gap-md">
                   <button 
-                    className="new-transport-button"
+                    className="btn btn-secondary"
                     onClick={handleNewRequest}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
                     New Transport Request
                   </button>
                 </div>
               </div>
-              
-              <div className="stats-grid">
-                <StatCard
-                  title="Pending Requests"
-                  value={stats.pending_approval}
-                  icon={
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                  }
-                  color="blue"
-                />
-                <StatCard
-                  title="Active Transports"
-                  value={stats.active_transports}
-                  icon={
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
-                      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
-                      <line x1="6" y1="1" x2="6" y2="4"></line>
-                      <line x1="10" y1="1" x2="10" y2="4"></line>
-                      <line x1="14" y1="1" x2="14" y2="4"></line>
-                    </svg>
-                  }
-                  color="green"
-                />
-                <StatCard
-                  title="Completed Today"
-                  value={stats.completed_transports}
-                  icon={
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                  }
-                  color="purple"
-                />
-                <StatCard
-                  title="Avg. Response Time"
-                  value={`${stats.averageResponseTime} min`}
-                  icon={
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                  }
-                  color="orange"
-                />
-              </div>
-              
-              <div className="dashboard-grid">
-                <div className="dashboard-card activity-feed-card">
-                  <h2 className="dashboard-card-title">Recent Activity</h2>
-                  <ActivityFeed activities={activities} />
-                </div>
-                
-                <div className="dashboard-card">
-                  <h2 className="dashboard-card-title">Notifications</h2>
-                  <NotificationList notifications={notifications} />
-                </div>
-              </div>
             </div>
-          ) : activeView === 'requests' ? (
-            <div className="transport-requests-view">
-              {showTransportForm ? (
-                <TransportRequestForm 
-                  onRequestCreated={handleCreateTransport} 
-                  onCancel={handleCloseForm} 
-                />
+          </div>
+
+          <div className="dashboard-content">
+            <div className="container">
+              <div className="view-toggle mb-lg">
+                <button 
+                  className={`view-toggle-button ${activeView === 'dashboard' ? 'active' : ''}`}
+                  onClick={() => handleViewChange('dashboard')}
+                >
+                  Dashboard
+                </button>
+                <button 
+                  className={`view-toggle-button ${activeView === 'transport-requests' ? 'active' : ''}`}
+                  onClick={() => handleViewChange('transport-requests')}
+                >
+                  Transport Requests
+                </button>
+              </div>
+
+              {activeView === 'dashboard' ? (
+                <>
+                  <div className="dashboard-section mb-lg">
+                    <h2 className="mb-md">Overview</h2>
+                    <div className="stats-grid">
+                      <div className="stat-card">
+                        <div className="stat-card-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                          </svg>
+                        </div>
+                        <div className="stat-card-title">Pending Requests</div>
+                        <div className="stat-card-value">{stats.pending_approval}</div>
+                      </div>
+                      
+                      <div className="stat-card">
+                        <div className="stat-card-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="1" y="3" width="15" height="13" rx="2" ry="2"></rect>
+                            <line x1="16" y1="8" x2="20" y2="8"></line>
+                            <line x1="16" y1="16" x2="23" y2="16"></line>
+                            <path d="M17 3v18h4"></path>
+                          </svg>
+                        </div>
+                        <div className="stat-card-title">Active Transports</div>
+                        <div className="stat-card-value">{stats.active_transports}</div>
+                      </div>
+                      
+                      <div className="stat-card">
+                        <div className="stat-card-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        </div>
+                        <div className="stat-card-title">Completed Today</div>
+                        <div className="stat-card-value">{stats.completed_transports}</div>
+                      </div>
+                      
+                      <div className="stat-card">
+                        <div className="stat-card-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                          </svg>
+                        </div>
+                        <div className="stat-card-title">Total Transports</div>
+                        <div className="stat-card-value">{stats.total_transports}</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="dashboard-grid">
+                    <div className="dashboard-section">
+                      <div className="dashboard-card">
+                        <h3 className="mb-md">Recent Activity</h3>
+                        {activities.length > 0 ? (
+                          <div className="activity-list">
+                            {activities.map((activity, index) => (
+                              <div key={activity.id || index} className="activity-item">
+                                <div className="activity-icon">
+                                  {activity.type === 'transport_request' && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                      <polyline points="14 2 14 8 20 8"></polyline>
+                                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                                      <polyline points="10 9 9 9 8 9"></polyline>
+                                    </svg>
+                                  )}
+                                  {activity.type === 'transport_assigned' && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <rect x="1" y="3" width="15" height="13" rx="2" ry="2"></rect>
+                                      <line x1="16" y1="8" x2="20" y2="8"></line>
+                                      <line x1="16" y1="16" x2="23" y2="16"></line>
+                                      <path d="M17 3v18h4"></path>
+                                    </svg>
+                                  )}
+                                  {activity.type === 'transport_completed' && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                  )}
+                                </div>
+                                <div className="activity-content">
+                                  <p>{activity.content}</p>
+                                  <span className="activity-time">
+                                    {new Date(activity.created_at).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-center">No recent activity</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="dashboard-section">
+                      <div className="dashboard-card">
+                        <h3 className="mb-md">Notifications</h3>
+                        {notifications.length > 0 ? (
+                          <div className="notification-list">
+                            {notifications.map((notification, index) => (
+                              <div key={notification.id || index} className="notification-item">
+                                <div className="notification-content">
+                                  <h4>{notification.title}</h4>
+                                  <p>{notification.message}</p>
+                                  <span className="notification-time">
+                                    {new Date(notification.created_at).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-center">No new notifications</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </>
               ) : (
-                <TransportRequestList onNewRequest={handleNewRequest} />
+                <div className="transport-requests-view">
+                  {showTransportForm ? (
+                    <div className="dashboard-card">
+                      <div className="d-flex justify-between align-center mb-md">
+                        <h2>New Transport Request</h2>
+                        <button 
+                          className="btn btn-secondary"
+                          onClick={handleCloseForm}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                      <TransportRequestForm 
+                        onSubmit={handleCreateTransport}
+                        onCancel={handleCloseForm}
+                      />
+                    </div>
+                  ) : (
+                    <div className="dashboard-card">
+                      <div className="d-flex justify-between align-center mb-md">
+                        <h2>Transport Requests</h2>
+                        <button 
+                          className="btn btn-primary"
+                          onClick={handleNewRequest}
+                        >
+                          New Request
+                        </button>
+                      </div>
+                      <TransportRequestList />
+                    </div>
+                  )}
+                </div>
               )}
             </div>
-          ) : (
-            <div className="placeholder-view">
-              <h2>Feature Coming Soon</h2>
-              <p>This feature is currently under development. Please check back later.</p>
-            </div>
-          )}
-        </main>
-        
-        {/* Modals and overlays */}
-        {showTransportForm && activeView === 'dashboard' && (
-          <div className="modal-overlay">
-            <TransportRequestForm 
-              onRequestCreated={handleCreateTransport} 
-              onCancel={handleCloseForm} 
-            />
           </div>
-        )}
-      </div>
-    </ErrorBoundary>
+        </>
+      )}
+      
+      {/* Dev toolbar will be rendered by App.js if user is a developer */}
+    </div>
   );
 };
 

@@ -6,17 +6,9 @@ import './DevToolbar.css';
 const DevToolbar = () => {
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setCurrentUser(data?.user || null);
-    };
-
-    getUser();
-
     // Keyboard shortcut to toggle visibility (Alt+D)
     const handleKeyDown = (e) => {
       if (e.altKey && e.key === 'd') {

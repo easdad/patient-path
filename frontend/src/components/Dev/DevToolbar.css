@@ -129,14 +129,67 @@
   background: #666;
 }
 
-@media (max-width: 768px) {
+/* Mobile optimizations for dev toolbar */
+@media (max-width: 480px) {
   .dev-toolbar {
     bottom: 10px;
     right: 10px;
-    max-width: 300px;
+    max-width: calc(100vw - 20px);
+    width: auto;
   }
   
   .dev-toolbar.expanded {
-    width: 300px;
+    width: calc(100vw - 20px);
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .dev-toolbar-content {
+    max-height: 60vh;
+  }
+  
+  .button-group {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .button-group button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 5px;
+    text-align: left;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 481px) and (max-width: 768px) {
+  .dev-toolbar {
+    bottom: 15px;
+    right: 15px;
+    max-width: 320px;
+  }
+  
+  .dev-toolbar.expanded {
+    width: 320px;
+  }
+  
+  .button-group {
+    flex-wrap: wrap;
+  }
+  
+  .button-group button {
+    flex: 1 0 45%;
+    margin: 5px;
+  }
+}
+
+/* Add touch-friendly targets */
+@media (max-width: 768px) {
+  .dev-toolbar-header {
+    padding: 12px 15px;
+  }
+  
+  .dev-toolbar button {
+    min-height: 40px;
   }
 } 
