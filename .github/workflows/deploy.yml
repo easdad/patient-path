@@ -20,16 +20,19 @@ jobs:
           cd /var/www/patient-path
           git pull origin main
           
-          # Create or update the .env file
-          cat > /var/www/patient-path/frontend/.env << EOL
-          REACT_APP_SUPABASE_URL=https://mtrmxzywxfklltwuxtgb.supabase.co
-          REACT_APP_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10cm14enl3eGZrbGx0d3V4dGdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE0NzEwMzksImV4cCI6MjA1NzA0NzAzOX0.WO9gM5kfhIvLiS7PNbbAmayYKfpPiCocahyXAUtTcdY
-          REACT_APP_API_URL=/api
-          EOL
-          
-          # Install dependencies and build
+          # Install backend dependencies
           cd backend && npm install
-          cd ../frontend && npm install && npm run build
+          
+          # Frontend deployment with environment variables directly in the build command
+          cd ../frontend
+          npm install
+          
+          # Clean any old build artifacts
+          rm -rf build
+          
+          # Run build with environment variables directly passed to the command
+          REACT_APP_SUPABASE_URL=https://mtrmxzywxfklltwuxtgb.supabase.co REACT_APP_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10cm14enl3eGZrbGx0d3V4dGdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE0NzEwMzksImV4cCI6MjA1NzA0NzAzOX0.WO9gM5kfhIvLiS7PNbbAmayYKfpPiCocahyXAUtTcdY REACT_APP_API_URL=/api npm run build
           
           # Restart the API server
+          cd ../
           pm2 restart patient-path-api || pm2 start ecosystem.config.js
