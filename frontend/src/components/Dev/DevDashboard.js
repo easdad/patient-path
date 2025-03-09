@@ -30,10 +30,17 @@ const DevDashboard = () => {
     setError(null);
     
     try {
-      // Verify admin access through app_metadata
-      if (user?.app_metadata?.role !== 'admin') {
-        throw new Error('Admin access required. Your account does not have the required permissions.');
+      // Verify developer access through app_metadata
+      console.log("Checking developer access in DevDashboard");
+      console.log("User app_metadata:", user?.app_metadata);
+      
+      if (user?.app_metadata?.role !== 'developer') {
+        console.error("Access denied: User does not have developer role");
+        console.log("Current user role:", user?.app_metadata?.role);
+        throw new Error('Developer access required. Your account does not have the required permissions.');
       }
+      
+      console.log("Developer access verified successfully");
       
       if (activeTab === 'users' || activeTab === 'dashboard') {
         const { data: usersData, error: usersError } = await dataService.getProfiles();

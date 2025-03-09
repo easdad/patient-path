@@ -7,8 +7,18 @@ const ProtectedRoute = ({ children, requiredUserType }) => {
   const { user, userType, loading, hasDevAccess } = useAuth();
   const location = useLocation();
 
+  console.log("ProtectedRoute check:", { 
+    requiredUserType, 
+    currentUserType: userType, 
+    loading,
+    hasUser: !!user,
+    userAppMetadata: user?.app_metadata,
+    isDev: hasDevAccess()
+  });
+
   // Show loading state while authentication is being verified
   if (loading) {
+    console.log("Auth is still loading...");
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
@@ -19,12 +29,14 @@ const ProtectedRoute = ({ children, requiredUserType }) => {
 
   // If not authenticated, redirect to login page
   if (!user) {
+    console.log("User not authenticated, redirecting to landing page");
     // Store the current location they were trying to go to
     return <Navigate to="/" state={{ from: location }} replace />;
   }
   
   // Check if user has developer access - developers can access all routes
   if (hasDevAccess()) {
+    console.log("Developer access granted - bypassing route protection");
     return children;
   }
   
@@ -32,6 +44,7 @@ const ProtectedRoute = ({ children, requiredUserType }) => {
   if (requiredUserType && userType !== requiredUserType) {
     // Get role from app_metadata (most secure) or fallback to userType
     const userRole = user.app_metadata?.role || userType;
+    console.log(`Access denied: Required ${requiredUserType} but user has ${userRole}`);
     
     // Redirect to appropriate dashboard based on user role
     if (userRole === AUTH_CONFIG.USER_TYPES.HOSPITAL) {

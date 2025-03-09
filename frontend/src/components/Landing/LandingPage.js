@@ -26,6 +26,8 @@ const LandingPage = () => {
     setError('');
 
     try {
+      console.log('Starting login process with email:', formData.email);
+
       // Login with Supabase
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
@@ -38,10 +40,11 @@ const LandingPage = () => {
       }
       
       if (!data?.user) {
+        console.error('No user returned from authentication');
         throw new Error('No user returned from authentication. Account may not exist.');
       }
       
-      console.log('Login successful', data);
+      console.log('Login successful, user data:', data.user.id);
       
       // Get user details
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -53,11 +56,17 @@ const LandingPage = () => {
       
       const user = userData?.user;
       if (!user) {
+        console.error('Failed to retrieve user details after login');
         throw new Error('Failed to retrieve user details after login.');
       }
       
+      console.log('User details retrieved successfully');
+      console.log('app_metadata:', user.app_metadata);
+      console.log('user_metadata:', user.user_metadata);
+      
       // Check for role in app_metadata first (most secure)
       if (user?.app_metadata?.role === 'developer') {
+        console.log("Developer role detected in app_metadata, redirecting to developer dashboard");
         navigate('/dev-dashboard');
         return;
       }
@@ -65,66 +74,61 @@ const LandingPage = () => {
       // Check user_metadata (for backward compatibility)
       const userType = user?.user_metadata?.user_type || 'hospital';
       
+      console.log(`userType from metadata: ${userType}`);
+      
       // Route to appropriate dashboard based on user type
-      const dashboardRoute = userType === 'ambulance' ? '/ambulance-dashboard' : '/hospital-dashboard';
+      const dashboardRoute = userType === 'ambulance' 
+        ? '/ambulance-dashboard' 
+        : userType === 'developer'
+          ? '/dev-dashboard'
+          : '/hospital-dashboard';
+          
+      console.log(`User type: ${userType}, redirecting to: ${dashboardRoute}`);
       navigate(dashboardRoute);
     } catch (err) {
       console.error('Authentication error:', err);
       
       // Handle specific error cases
-      if (err.message.includes('Invalid login credentials') || 
-          err.message.includes('Email not confirmed') ||
-          err.message.includes('No user')) {
+      if (err.message?.includes('Invalid login credentials') || 
+          err.message?.includes('Email not confirmed') ||
+          err.message?.includes('No user')) {
         setError('Invalid email or password. Please check your credentials or create an account.');
       } else {
         setError(err.message || 'An error occurred during authentication');
       }
-    } finally {
+    }
+    
+    finally {
       setIsSubmitting(false);
     }
   };
 
+  // Handler for forgot password button
   const handleForgotPassword = async () => {
-    const email = formData.email;
-    if (!email) {
+    // If they haven't entered an email, prompt them
+    if (!formData.email) {
       setError('Please enter your email address first');
       return;
     }
     
     try {
       setIsSubmitting(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/reset-password',
+      
+      // Call Supabase's password reset functionality
+      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       
-      alert(`Password reset instructions have been sent to ${email}`);
+      // Show success message
+      alert('Password reset link sent to your email');
     } catch (err) {
-      console.error('Password reset error:', err);
+      console.error('Error sending password reset:', err);
       setError(err.message || 'Failed to send password reset email');
     } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSocialLogin = async (provider) => {
-    try {
-      setIsSubmitting(true);
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: window.location.origin
-        }
-      });
-      
-      if (error) throw error;
-      
-      // The redirect will happen automatically, but we set isSubmitting to true
-      // to disable buttons and prevent multiple clicks
-    } catch (err) {
-      console.error(`${provider} login error:`, err);
-      setError(err.message || `Failed to sign in with ${provider}`);
       setIsSubmitting(false);
     }
   };
@@ -151,8 +155,6 @@ const LandingPage = () => {
           <p className="welcome-text">
             Streamlining patient transport coordination between healthcare facilities and 
             ambulance services. Please log in or create an account to continue.
-            <br/>
-            <span className="update-notice">✨ Now with improved workflow and real-time updates! ✨</span>
           </p>
         </div>
 
@@ -216,74 +218,59 @@ const LandingPage = () => {
               <span>OR</span>
             </div>
 
-            <button 
-              className="social-auth-button google-button" 
-              disabled={isSubmitting}
-              onClick={() => handleSocialLogin('google')}
-            >
-              <span className="social-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
-                  <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
-                  <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
-                  <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
-                  <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+            {/* Social Auth Buttons */}
+            <div className="social-auth-wrapper">
+              <button className="social-auth-button google">
+                <svg viewBox="0 0 24 24" className="social-icon">
+                  <path fill="currentColor" d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81z"/>
                 </svg>
-              </span>
-              Continue with Google
-            </button>
+                <span>Continue with Google</span>
+              </button>
 
-            <button 
-              className="social-auth-button apple-button" 
-              disabled={isSubmitting}
-              onClick={() => handleSocialLogin('apple')}
-            >
-              <span className="social-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="18px" height="18px">
-                  <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+              <button className="social-auth-button apple">
+                <svg viewBox="0 0 24 24" className="social-icon">
+                  <path fill="currentColor" d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3z"/>
                 </svg>
-              </span>
-              Continue with Apple
-            </button>
-
-            <p className="auth-toggle">
-              Don't have an account?{" "}
-              <Link to="/register" className="toggle-button">
-                Create account
-              </Link>
-            </p>
-          </div>
-        </div>
-
-        {/* Feature Cards Side by Side */}
-        <div className="feature-cards">
-          <div className="feature-card">
-            <div className="feature-icon hospital">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-              </svg>
+                <span>Continue with Apple</span>
+              </button>
             </div>
-            <h3>For Hospitals</h3>
-            <p>Easily request patient transports, track their status, and choose from available providers.</p>
-          </div>
-          
-          <div className="feature-card">
-            <div className="feature-icon ambulance">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="3" width="15" height="13" rx="2" ry="2"></rect>
-                <circle cx="7" cy="16" r="3"></circle>
-                <circle cx="17" cy="16" r="3"></circle>
-                <line x1="16" y1="9" x2="22" y2="9"></line>
-              </svg>
+
+            <div className="create-account">
+              <p>Don't have an account?</p>
+              <Link to="/register" className="create-account-link">Register Here</Link>
             </div>
-            <h3>For Ambulance Services</h3>
-            <p>Find transport requests, submit bids, and efficiently manage your fleet.</p>
           </div>
         </div>
       </main>
-      
-      {/* Footer */}
+
+      {/* Features Section */}
+      <section className="features-section">
+        <h2 className="section-heading">Why Choose Patient PATH?</h2>
+        
+        <div className="feature-cards">
+          <div className="feature-card">
+            <div className="feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <h3>Secure Communication</h3>
+            <p>End-to-end encrypted communication between healthcare providers and ambulance services.</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                <line x1="4" y1="22" x2="4" y2="15"></line>
+              </svg>
+            </div>
+            <h3>Simplified Workflow</h3>
+            <p>Streamlined processes reduce administrative burden and minimize errors.</p>
+          </div>
+        </div>
+      </section>
+
       <footer className="landing-footer">
         <div className="footer-content">
           <div className="footer-logo">
@@ -310,27 +297,17 @@ const LandingPage = () => {
             </div>
             <div className="footer-link">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="4"></circle>
-                <path d="M12 2v2"></path>
-                <path d="M12 18v2"></path>
-                <path d="M4.93 4.93l1.41 1.41"></path>
-                <path d="M17.66 17.66l1.41 1.41"></path>
-                <path d="M2 12h2"></path>
-                <path d="M18 12h2"></path>
-                <path d="M4.93 19.07l1.41-1.41"></path>
-                <path d="M17.66 6.34l1.41-1.41"></path>
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
               </svg>
-              <span>Support</span>
+              <span>Contact Us</span>
             </div>
           </div>
-        </div>
-        
-        <div className="footer-bottom">
-          <p>© 2025 PATH - Patient Ambulance Transport Hub</p>
-          <div className="footer-bottom-links">
-            <a href="#privacy">Privacy Policy</a>
-            <a href="#terms">Terms of Service</a>
-            <a href="#contact">Contact Us</a>
+          
+          <div className="footer-legal">
+            <span>&copy; {new Date().getFullYear()} Patient Path Inc.</span>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
           </div>
         </div>
       </footer>

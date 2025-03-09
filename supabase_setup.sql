@@ -43,15 +43,26 @@ CREATE POLICY "Users can view their own profile" ON public.profiles
 CREATE POLICY "Users can update their own profile" ON public.profiles
   FOR UPDATE USING (auth.uid() = id);
 
+-- Fixed policies to avoid recursion
 CREATE POLICY "Hospital staff can view ambulance profiles" ON public.profiles
   FOR SELECT USING (
-    auth.uid() IN (SELECT id FROM public.profiles WHERE user_type = 'hospital')
+    EXISTS (
+      SELECT 1 FROM auth.users
+      WHERE id = auth.uid() AND id IN (
+        SELECT id FROM public.profiles WHERE user_type = 'hospital'
+      )
+    )
     AND user_type = 'ambulance'
   );
 
 CREATE POLICY "Ambulance staff can view hospital profiles" ON public.profiles
   FOR SELECT USING (
-    auth.uid() IN (SELECT id FROM public.profiles WHERE user_type = 'ambulance')
+    EXISTS (
+      SELECT 1 FROM auth.users
+      WHERE id = auth.uid() AND id IN (
+        SELECT id FROM public.profiles WHERE user_type = 'ambulance'
+      )
+    )
     AND user_type = 'hospital'
   );
 

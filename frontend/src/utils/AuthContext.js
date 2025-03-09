@@ -64,15 +64,29 @@ export function AuthProvider({ children }) {
 
   const fetchUserRole = async (user) => {
     try {
+      console.log("Fetching user role for:", user.id);
+      console.log("app_metadata:", user.app_metadata);
+      console.log("user_metadata:", user.user_metadata);
+      
       // Primary source: Check app_metadata.role (most secure)
       if (user.app_metadata?.role) {
         const role = user.app_metadata.role;
+        console.log(`Role found in app_metadata: ${role}`);
         setUserType(role);
         setIsDeveloper(role === 'developer');
         return;
       }
       
+      // Secondary check: Check user_metadata for developer role
+      if (user.user_metadata?.user_type === 'developer') {
+        console.log("Developer role found in user_metadata");
+        setUserType('developer');
+        setIsDeveloper(true);
+        return;
+      }
+      
       // Fallback: Check profiles table
+      console.log("No role in metadata, checking profiles table");
       const { data, error } = await supabase
         .from('profiles')
         .select('user_type')
@@ -81,23 +95,27 @@ export function AuthProvider({ children }) {
       
       if (error) {
         console.error('Error fetching user type:', error);
+        console.log("Default to hospital role due to error");
         setUserType('hospital'); // Default fallback
         setIsDeveloper(false);
         return;
       }
       
       if (data?.user_type) {
+        console.log(`User type from profiles: ${data.user_type}`);
         setUserType(data.user_type);
         setIsDeveloper(data.user_type === 'developer');
         
         // Optionally: You could sync the user_type to app_metadata.role here
         // using a server-side function, but that would require additional setup
       } else {
+        console.log("No user_type in profiles, defaulting to hospital");
         setUserType('hospital'); // Default fallback
         setIsDeveloper(false);
       }
     } catch (error) {
       console.error('Error in fetchUserRole:', error);
+      console.log("Default to hospital role due to error");
       setUserType('hospital'); // Default fallback
       setIsDeveloper(false);
     }
