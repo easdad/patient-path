@@ -9,10 +9,10 @@ const SecurityHelmet = () => {
   // Content Security Policy directives
   const cspDirectives = {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'", "'unsafe-inline'", "https://aadkpnqvfnqzxruvbqfa.supabase.co"],
+    scriptSrc: ["'self'", "'unsafe-inline'", "https://mtrmxzywxfklltwuxtgb.supabase.co"],
     styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-    imgSrc: ["'self'", "data:", "https://aadkpnqvfnqzxruvbqfa.supabase.co"],
-    connectSrc: ["'self'", "https://aadkpnqvfnqzxruvbqfa.supabase.co"],
+    imgSrc: ["'self'", "data:", "https://mtrmxzywxfklltwuxtgb.supabase.co"],
+    connectSrc: ["'self'", "https://mtrmxzywxfklltwuxtgb.supabase.co"],
     fontSrc: ["'self'", "https://fonts.gstatic.com"],
     objectSrc: ["'none'"],
     mediaSrc: ["'self'"],
