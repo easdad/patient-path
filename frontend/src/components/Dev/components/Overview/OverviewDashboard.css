@@ -1,0 +1,38 @@
+.overview-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.overview-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--color-dark);
+}
+
+.update-time {
+  font-size: 13px;
+  color: var(--color-gray);
+  background-color: var(--color-gray-lighter);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+} 

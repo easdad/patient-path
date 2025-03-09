@@ -1,0 +1,82 @@
+.stat-card {
+  background-color: white;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border-top: 5px solid var(--color-purple);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card.purple {
+  border-top-color: var(--color-purple);
+}
+
+.stat-card.blue {
+  border-top-color: var(--color-blue);
+}
+
+.stat-card.green {
+  border-top-color: var(--color-success);
+}
+
+.stat-card.orange {
+  border-top-color: var(--color-warning);
+}
+
+.stat-card.red {
+  border-top-color: var(--color-danger);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.stat-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-gray);
+  font-weight: 500;
+}
+
+.stat-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.stat-count {
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--color-dark);
+  margin-bottom: 15px;
+}
+
+.stat-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--color-gray-lighter);
+  padding-top: 15px;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.breakdown-label {
+  color: var(--color-gray);
+}
+
+.breakdown-value {
+  font-weight: 500;
+  color: var(--color-dark);
+} 

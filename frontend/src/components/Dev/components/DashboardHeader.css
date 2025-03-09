@@ -1,0 +1,50 @@
+.dev-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-gray-lighter);
+}
+
+.dev-dashboard-header h1 {
+  font-size: 24px;
+  margin: 0;
+  color: var(--color-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dev-dashboard-header h1::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-purple);
+  border-radius: 50%;
+}
+
+.dev-user-info {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-gray-lighter);
+  padding: 8px 15px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.dev-email {
+  margin-right: 10px;
+  font-size: 14px;
+  color: var(--color-gray);
+}
+
+.dev-badge {
+  background-color: var(--color-purple);
+  color: white;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+} 

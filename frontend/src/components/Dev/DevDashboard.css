@@ -85,17 +85,77 @@
   background-color: white;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
-  padding: 20px;
+  padding: 25px;
   min-height: 500px;
 }
 
-.loading {
+/* Loading and error states */
+.loading-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 300px;
+  gap: 20px;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid var(--color-gray-lighter);
+  border-top: 5px solid var(--color-purple);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
   font-size: 16px;
   color: var(--color-gray);
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.error-container h3 {
+  color: var(--color-danger);
+  margin-bottom: 15px;
+}
+
+.error-container p {
+  color: var(--color-gray);
+  margin-bottom: 20px;
+  max-width: 600px;
+}
+
+.access-denied-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.access-denied-container h2 {
+  color: var(--color-danger);
+  margin-bottom: 15px;
+}
+
+.access-denied-container p {
+  color: var(--color-gray);
+  margin-bottom: 10px;
+  max-width: 500px;
 }
 
 /* Dashboard overview styles */
@@ -464,46 +524,6 @@ select {
   .logs-table-container {
     max-height: 70vh;
   }
-}
-
-/* Error container styling */
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  margin: 1rem 0;
-  background-color: rgba(255, 0, 0, 0.05);
-  border: 1px solid rgba(255, 0, 0, 0.2);
-  border-radius: 8px;
-  text-align: center;
-}
-
-.error-container h3 {
-  color: #d32f2f;
-  margin-bottom: 0.5rem;
-}
-
-.error-container p {
-  margin-bottom: 1rem;
-  color: #666;
-  max-width: 500px;
-}
-
-.error-container button {
-  background-color: #2196f3;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s;
-}
-
-.error-container button:hover {
-  background-color: #1976d2;
 }
 
 /* Add these styles for the monitoring and testing tabs */
