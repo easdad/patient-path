@@ -1,99 +1,29 @@
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_CONFIG } from '../config/supabase.config';
 
-// Get configuration from either window object (production) or environment variables (development)
-const getSupabaseConfig = () => {
-  // Check if we have runtime configuration from window object (for production)
-  if (window.__SUPABASE_CONFIG__ && window.__SUPABASE_CONFIG__.URL && window.__SUPABASE_CONFIG__.ANON_KEY) {
-    console.log('Using runtime Supabase configuration from window.__SUPABASE_CONFIG__');
-    return {
-      URL: window.__SUPABASE_CONFIG__.URL,
-      ANON_KEY: window.__SUPABASE_CONFIG__.ANON_KEY
-    };
-  }
-  
-  // Fall back to environment variables (for development)
-  console.log('Using Supabase configuration from environment variables');
-  return {
-    URL: process.env.REACT_APP_SUPABASE_URL,
-    ANON_KEY: process.env.REACT_APP_SUPABASE_ANON_KEY
-  };
-};
+// Simplified Supabase client initialization
+// Directly use the values from environment variables or window object
+const supabaseUrl = window.__SUPABASE_CONFIG__?.URL || process.env.REACT_APP_SUPABASE_URL;
+const supabaseAnonKey = window.__SUPABASE_CONFIG__?.ANON_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-// Get the configuration
-const config = getSupabaseConfig();
-const supabaseUrl = config.URL;
-const supabaseAnonKey = config.ANON_KEY;
+// Add console logs to debug configuration 
+console.log('Supabase URL:', supabaseUrl);
+console.log('Supabase Key exists:', !!supabaseAnonKey);
 
-// For debugging only
-if (process.env.NODE_ENV === 'development') {
-  console.log('Supabase Configuration:');
-  console.log('URL:', supabaseUrl);
-  console.log('Key exists:', !!supabaseAnonKey);
-  
-  // Check URL format
-  if (supabaseUrl) {
-    const isValidUrl = supabaseUrl.includes('supabase.co');
-    console.log('URL format valid:', isValidUrl);
-    if (!isValidUrl) console.error('URL must contain supabase.co');
-  }
-  
-  // Check Anon Key format
-  if (supabaseAnonKey) {
-    const isValidKey = supabaseAnonKey.startsWith('eyJ');
-    console.log('Key format valid:', isValidKey);
-    if (!isValidKey) console.error('Anon Key must start with "eyJ" (JWT format)');
-  }
-}
-
-// Validate configuration
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
-    'CRITICAL ERROR: Missing Supabase credentials. The application will not function correctly.\n' +
-    'Check the supabase.config.js file and your environment variables.'
-  );
-}
-
-// Create the Supabase client with configuration from our config file
-let supabase;
-try {
-  supabase = createClient(
-    supabaseUrl,
-    supabaseAnonKey,
-    { auth: SUPABASE_CONFIG.AUTH }
-  );
-  console.log('✅ Supabase client created successfully');
-} catch (error) {
-  console.error('❌ Error creating Supabase client:', error.message);
-  // Create a dummy client to prevent app crashes
-  supabase = {
-    auth: {
-      signInWithPassword: () => Promise.resolve({ error: { message: 'Supabase client initialization failed' }}),
-      getUser: () => Promise.resolve({ error: { message: 'Supabase client initialization failed' }}),
-      getSession: () => Promise.resolve({ error: { message: 'Supabase client initialization failed' }}),
-      onAuthStateChange: () => ({ subscription: { unsubscribe: () => {} }})
+// Create the Supabase client with minimal options
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  },
+  // Disable any security features that might be causing issues
+  global: {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
     }
-  };
-}
+  }
+});
 
-// Test the connection in development mode
-if (process.env.NODE_ENV === 'development') {
-  // Check connection
-  supabase.auth.getSession()
-    .then(({ data, error }) => {
-      if (error) {
-        console.error('❌ Supabase connection test failed:', error.message);
-        console.error('This likely means your API key is incorrect or expired');
-        console.error('Please log into https://app.supabase.com and get a fresh API key');
-      } else {
-        console.log('✅ Supabase connection successful', data.session ? 'User is logged in' : 'No active session');
-      }
-    })
-    .catch(error => {
-      console.error('❌ Supabase connection test error:', error.message);
-    });
-}
-
-// Export as both default and named export to support both import styles
+// Export as both default and named export
 export { supabase };
 export default supabase; 

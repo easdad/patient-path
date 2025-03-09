@@ -13,67 +13,35 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState(null);
-  const [isDeveloper, setIsDeveloper] = useState(false);
 
   // Use the user types from our centralized config
   const USER_TYPES = SUPABASE_CONFIG.USER_TYPES;
 
+  // Simplified user role fetching with prioritized fallbacks
   const fetchUserRole = async (user) => {
     try {
-      console.log("Fetching user role for:", user.id);
-      console.log("app_metadata:", user.app_metadata);
-      console.log("user_metadata:", user.user_metadata);
-      
-      // Primary source: Check app_metadata.role (most secure)
+      // Simplified approach: check app_metadata first, then profiles table
       if (user.app_metadata?.role) {
-        const role = user.app_metadata.role;
-        console.log(`Role found in app_metadata: ${role}`);
-        setUserType(role);
-        setIsDeveloper(role === USER_TYPES.DEVELOPER);
+        setUserType(user.app_metadata.role);
         return;
       }
       
-      // Secondary check: Check user_metadata for developer role
-      if (user.user_metadata?.user_type === USER_TYPES.DEVELOPER) {
-        console.log("Developer role found in user_metadata");
-        setUserType(USER_TYPES.DEVELOPER);
-        setIsDeveloper(true);
-        return;
-      }
-      
-      // Fallback: Check profiles table
-      console.log("No role in metadata, checking profiles table");
+      // Check profiles table as fallback
       const { data, error } = await supabase
         .from('profiles')
         .select('user_type')
         .eq('id', user.id)
         .single();
       
-      if (error) {
-        console.error('Error fetching user type:', error);
-        console.log("Default to hospital role due to error");
-        setUserType('hospital'); // Default fallback
-        setIsDeveloper(false);
-        return;
-      }
-      
-      if (data?.user_type) {
-        console.log(`User type from profiles: ${data.user_type}`);
+      if (!error && data?.user_type) {
         setUserType(data.user_type);
-        setIsDeveloper(data.user_type === USER_TYPES.DEVELOPER);
-        
-        // Optionally: You could sync the user_type to app_metadata.role here
-        // using a server-side function, but that would require additional setup
       } else {
-        console.log("No user_type in profiles, defaulting to hospital");
-        setUserType('hospital'); // Default fallback
-        setIsDeveloper(false);
+        // Default fallback - set as hospital user
+        setUserType(USER_TYPES.HOSPITAL);
       }
     } catch (error) {
-      console.error('Error in fetchUserRole:', error);
-      console.log("Default to hospital role due to error");
-      setUserType('hospital'); // Default fallback
-      setIsDeveloper(false);
+      console.error('Error fetching user role:', error);
+      setUserType(USER_TYPES.HOSPITAL); // Default fallback
     }
   };
 
@@ -82,7 +50,7 @@ export function AuthProvider({ children }) {
       const { data, error } = await supabase.auth.getSession();
       
       if (error) {
-        console.error('Error getting session:', error);
+        console.error('Error getting session:', error.message);
         setLoading(false);
         return;
       }
@@ -94,11 +62,10 @@ export function AuthProvider({ children }) {
         await fetchUserRole(data.session.user);
       }
     } catch (error) {
-      console.error('Error in initializeAuth:', error);
+      console.error('Auth initialization error:', error.message);
     } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -113,7 +80,6 @@ export function AuthProvider({ children }) {
           await fetchUserRole(session.user);
         } else {
           setUserType(null);
-          setIsDeveloper(false);
         }
       }
     );
@@ -123,9 +89,9 @@ export function AuthProvider({ children }) {
         authListener.subscription.unsubscribe();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initializeAuth]);
 
+  // Basic auth functions
   const signIn = async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -134,17 +100,15 @@ export function AuthProvider({ children }) {
       });
       
       if (error) throw error;
-      
       return { success: true, data };
     } catch (error) {
-      console.error('Error signing in:', error);
+      console.error('Sign in error:', error.message);
       return { success: false, error };
     }
   };
 
   const signUp = async (email, password, userData) => {
     try {
-      // Set up user account with user_type in metadata
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -154,24 +118,21 @@ export function AuthProvider({ children }) {
       });
       
       if (error) throw error;
-      
       return { success: true, data };
     } catch (error) {
-      console.error('Error signing up:', error);
+      console.error('Sign up error:', error.message);
       return { success: false, error };
     }
   };
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await supabase.auth.signOut();
       setUser(null);
       setSession(null);
       setUserType(null);
-      setIsDeveloper(false);
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('Sign out error:', error.message);
     }
   };
 
@@ -182,40 +143,32 @@ export function AuthProvider({ children }) {
       });
       
       if (error) throw error;
-      
       return { success: true };
     } catch (error) {
-      console.error('Error resetting password:', error);
+      console.error('Password reset error:', error.message);
       return { success: false, error };
     }
   };
 
   const updatePassword = async (password) => {
     try {
-      const { error } = await supabase.auth.updateUser({
-        password,
-      });
+      const { error } = await supabase.auth.updateUser({ password });
       
       if (error) throw error;
-      
       return { success: true };
     } catch (error) {
-      console.error('Error updating password:', error);
+      console.error('Password update error:', error.message);
       return { success: false, error };
     }
   };
 
-  // Helper to check if current user has developer access
-  const hasDevAccess = () => {
-    return isDeveloper || user?.app_metadata?.role === USER_TYPES.DEVELOPER;
-  };
-
-  // Helper to check if current user can access a specific dashboard
+  // Role checking utilities
+  const hasDevAccess = () => userType === USER_TYPES.DEVELOPER;
+  
   const canAccessDashboard = (requiredType) => {
     // Developers can access all dashboards
-    if (hasDevAccess()) return true;
-    
-    // Otherwise, check if user type matches required type
+    if (userType === USER_TYPES.DEVELOPER) return true;
+    // Otherwise, check specific type
     return userType === requiredType;
   };
 
@@ -224,7 +177,6 @@ export function AuthProvider({ children }) {
     session,
     loading,
     userType,
-    isDeveloper,
     signIn,
     signUp,
     signOut,

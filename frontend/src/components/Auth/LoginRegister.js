@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../utils/AuthContext';
+import { SUPABASE_CONFIG } from '../../config/supabase.config';
 import './LoginRegister.css';
 
 const LoginRegister = () => {
+  const navigate = useNavigate();
+  const { signIn, signUp } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
     fullName: '',
+    userType: SUPABASE_CONFIG.USER_TYPES.HOSPITAL // Default user type
   });
 
   const handleChange = (e) => {
@@ -15,16 +24,77 @@ const LoginRegister = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear previous error when user types
+    setError('');
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setError('Please fill all required fields');
+      return false;
+    }
+
+    if (!isLogin) {
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return false;
+      }
+      if (!formData.fullName) {
+        setError('Please enter your full name');
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would add authentication logic
-    console.log('Form submitted:', formData);
+    
+    if (!validateForm()) return;
+    
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    
+    try {
+      if (isLogin) {
+        // Handle login
+        const { success, error } = await signIn(formData.email, formData.password);
+        
+        if (success) {
+          // Redirect based on user type will happen automatically via ProtectedRoute
+          navigate('/');
+        } else {
+          setError(error.message || 'Failed to sign in');
+        }
+      } else {
+        // Handle registration
+        const userData = {
+          full_name: formData.fullName,
+          user_type: formData.userType
+        };
+        
+        const { success, error } = await signUp(formData.email, formData.password, userData);
+        
+        if (success) {
+          setSuccess('Account created successfully! Please check your email for verification.');
+        } else {
+          setError(error.message || 'Failed to create account');
+        }
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
+    setError('');
+    setSuccess('');
   };
 
   return (
@@ -45,6 +115,9 @@ const LoginRegister = () => {
               ? 'Sign in to access your health information' 
               : 'Join Patient Path to manage your healthcare journey'}
           </p>
+
+          {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
 
           <form onSubmit={handleSubmit}>
             {!isLogin && (
@@ -103,8 +176,28 @@ const LoginRegister = () => {
               </div>
             )}
 
-            <button type="submit" className="auth-button">
-              {isLogin ? 'Sign In' : 'Create Account'}
+            {!isLogin && (
+              <div className="form-group">
+                <label htmlFor="userType">User Type</label>
+                <select
+                  id="userType"
+                  name="userType"
+                  value={formData.userType}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value={SUPABASE_CONFIG.USER_TYPES.HOSPITAL}>Hospital</option>
+                  <option value={SUPABASE_CONFIG.USER_TYPES.AMBULANCE}>Ambulance</option>
+                </select>
+              </div>
+            )}
+
+            <button 
+              type="submit" 
+              className="auth-button"
+              disabled={loading}
+            >
+              {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
             </button>
           </form>
 
@@ -122,12 +215,18 @@ const LoginRegister = () => {
             Continue with Apple
           </button>
 
-          <p className="auth-toggle">
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
-            <button type="button" onClick={toggleForm} className="toggle-button">
-              {isLogin ? 'Sign up' : 'Sign in'}
-            </button>
-          </p>
+          <div className="form-footer">
+            <p>
+              {isLogin ? "Don't have an account? " : "Already have an account? "}
+              <button 
+                type="button" 
+                className="toggle-button" 
+                onClick={toggleForm}
+              >
+                {isLogin ? 'Sign Up' : 'Sign In'}
+              </button>
+            </p>
+          </div>
         </div>
 
         <div className="auth-footer">

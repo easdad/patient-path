@@ -1,28 +1,18 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { AUTH_CONFIG } from '../config/auth.config';
+import { SUPABASE_CONFIG } from '../config/supabase.config';
 
 const ProtectedRoute = ({ children, requiredUserType }) => {
-  const { user, userType, loading, hasDevAccess } = useAuth();
+  const { user, userType, loading } = useAuth();
   const location = useLocation();
 
-  console.log("ProtectedRoute check:", { 
-    requiredUserType, 
-    currentUserType: userType, 
-    loading,
-    hasUser: !!user,
-    userAppMetadata: user?.app_metadata,
-    isDev: hasDevAccess()
-  });
-
-  // Show loading state while authentication is being verified
+  // Show simplified loading state
   if (loading) {
-    console.log("Auth is still loading...");
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <div className="loading-text">Verifying authentication...</div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
+        <div style={{ border: '4px solid #f3f3f3', borderTop: '4px solid #3498db', borderRadius: '50%', width: '30px', height: '30px', animation: 'spin 1s linear infinite' }}></div>
+        <p style={{ marginTop: '10px' }}>Loading...</p>
       </div>
     );
   }
@@ -30,34 +20,31 @@ const ProtectedRoute = ({ children, requiredUserType }) => {
   // If not authenticated, redirect to login page
   if (!user) {
     console.log("User not authenticated, redirecting to landing page");
-    // Store the current location they were trying to go to
     return <Navigate to="/" state={{ from: location }} replace />;
   }
   
-  // Check if user has developer access - developers can access all routes
-  if (hasDevAccess()) {
-    console.log("Developer access granted - bypassing route protection");
+  // Simple role check - if you're a developer, you can access everything
+  const isDeveloper = userType === SUPABASE_CONFIG.USER_TYPES.DEVELOPER;
+  if (isDeveloper) {
     return children;
   }
   
   // For routes that require a specific user type
   if (requiredUserType && userType !== requiredUserType) {
-    // Get role from app_metadata (most secure) or fallback to userType
-    const userRole = user.app_metadata?.role || userType;
-    console.log(`Access denied: Required ${requiredUserType} but user has ${userRole}`);
+    console.log(`Access denied: Required ${requiredUserType} but user has ${userType}`);
     
-    // Redirect to appropriate dashboard based on user role
-    if (userRole === AUTH_CONFIG.USER_TYPES.HOSPITAL) {
+    // Simplified redirect logic based on user type
+    if (userType === SUPABASE_CONFIG.USER_TYPES.HOSPITAL) {
       return <Navigate to="/hospital-dashboard" replace />;
-    } else if (userRole === AUTH_CONFIG.USER_TYPES.AMBULANCE) {
+    } else if (userType === SUPABASE_CONFIG.USER_TYPES.AMBULANCE) {
       return <Navigate to="/ambulance-dashboard" replace />;
     }
     
-    // If user role is not recognized, redirect to unauthorized page
+    // Default redirect
     return <Navigate to="/unauthorized" replace />;
   }
   
-  // User is authenticated and authorized to access this route
+  // User is authenticated and authorized
   return children;
 };
 
