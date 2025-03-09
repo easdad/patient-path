@@ -1,5 +1,29 @@
 import { createClient } from '@supabase/supabase-js';
-import { supabaseUrl, supabaseAnonKey, SUPABASE_CONFIG, validateSupabaseConfig } from '../config/supabase.config';
+import { SUPABASE_CONFIG } from '../config/supabase.config';
+
+// Get configuration from either window object (production) or environment variables (development)
+const getSupabaseConfig = () => {
+  // Check if we have runtime configuration from window object (for production)
+  if (window.__SUPABASE_CONFIG__ && window.__SUPABASE_CONFIG__.URL && window.__SUPABASE_CONFIG__.ANON_KEY) {
+    console.log('Using runtime Supabase configuration from window.__SUPABASE_CONFIG__');
+    return {
+      URL: window.__SUPABASE_CONFIG__.URL,
+      ANON_KEY: window.__SUPABASE_CONFIG__.ANON_KEY
+    };
+  }
+  
+  // Fall back to environment variables (for development)
+  console.log('Using Supabase configuration from environment variables');
+  return {
+    URL: process.env.REACT_APP_SUPABASE_URL,
+    ANON_KEY: process.env.REACT_APP_SUPABASE_ANON_KEY
+  };
+};
+
+// Get the configuration
+const config = getSupabaseConfig();
+const supabaseUrl = config.URL;
+const supabaseAnonKey = config.ANON_KEY;
 
 // For debugging only
 if (process.env.NODE_ENV === 'development') {
@@ -23,12 +47,11 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Validate configuration
-const { isValid, errors } = validateSupabaseConfig();
-if (!isValid) {
-  console.error('❌ Supabase configuration is invalid:', errors);
-  alert('Application configuration error: Please contact support. Error: Invalid Supabase configuration.');
-} else {
-  console.log('✅ Supabase configuration format is valid');
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error(
+    'CRITICAL ERROR: Missing Supabase credentials. The application will not function correctly.\n' +
+    'Check the supabase.config.js file and your environment variables.'
+  );
 }
 
 // Create the Supabase client with configuration from our config file
@@ -48,8 +71,7 @@ try {
       signInWithPassword: () => Promise.resolve({ error: { message: 'Supabase client initialization failed' }}),
       getUser: () => Promise.resolve({ error: { message: 'Supabase client initialization failed' }}),
       getSession: () => Promise.resolve({ error: { message: 'Supabase client initialization failed' }}),
-      onAuthStateChange: () => ({ subscription: { unsubscribe: () => {} }}),
-      // Add other methods as needed
+      onAuthStateChange: () => ({ subscription: { unsubscribe: () => {} }})
     }
   };
 }
