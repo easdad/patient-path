@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from './supabaseClient';
-import { AUTH_CONFIG } from '../config/auth.config';
+import { SUPABASE_CONFIG } from '../config/supabase.config';
 
 const AuthContext = createContext();
 
@@ -14,6 +14,68 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState(null);
   const [isDeveloper, setIsDeveloper] = useState(false);
+
+  // Use the user types from our centralized config
+  const USER_TYPES = SUPABASE_CONFIG.USER_TYPES;
+
+  const fetchUserRole = async (user) => {
+    try {
+      console.log("Fetching user role for:", user.id);
+      console.log("app_metadata:", user.app_metadata);
+      console.log("user_metadata:", user.user_metadata);
+      
+      // Primary source: Check app_metadata.role (most secure)
+      if (user.app_metadata?.role) {
+        const role = user.app_metadata.role;
+        console.log(`Role found in app_metadata: ${role}`);
+        setUserType(role);
+        setIsDeveloper(role === USER_TYPES.DEVELOPER);
+        return;
+      }
+      
+      // Secondary check: Check user_metadata for developer role
+      if (user.user_metadata?.user_type === USER_TYPES.DEVELOPER) {
+        console.log("Developer role found in user_metadata");
+        setUserType(USER_TYPES.DEVELOPER);
+        setIsDeveloper(true);
+        return;
+      }
+      
+      // Fallback: Check profiles table
+      console.log("No role in metadata, checking profiles table");
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_type')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user type:', error);
+        console.log("Default to hospital role due to error");
+        setUserType('hospital'); // Default fallback
+        setIsDeveloper(false);
+        return;
+      }
+      
+      if (data?.user_type) {
+        console.log(`User type from profiles: ${data.user_type}`);
+        setUserType(data.user_type);
+        setIsDeveloper(data.user_type === USER_TYPES.DEVELOPER);
+        
+        // Optionally: You could sync the user_type to app_metadata.role here
+        // using a server-side function, but that would require additional setup
+      } else {
+        console.log("No user_type in profiles, defaulting to hospital");
+        setUserType('hospital'); // Default fallback
+        setIsDeveloper(false);
+      }
+    } catch (error) {
+      console.error('Error in fetchUserRole:', error);
+      console.log("Default to hospital role due to error");
+      setUserType('hospital'); // Default fallback
+      setIsDeveloper(false);
+    }
+  };
 
   const initializeAuth = useCallback(async () => {
     try {
@@ -36,6 +98,7 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -60,66 +123,8 @@ export function AuthProvider({ children }) {
         authListener.subscription.unsubscribe();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initializeAuth]);
-
-  const fetchUserRole = async (user) => {
-    try {
-      console.log("Fetching user role for:", user.id);
-      console.log("app_metadata:", user.app_metadata);
-      console.log("user_metadata:", user.user_metadata);
-      
-      // Primary source: Check app_metadata.role (most secure)
-      if (user.app_metadata?.role) {
-        const role = user.app_metadata.role;
-        console.log(`Role found in app_metadata: ${role}`);
-        setUserType(role);
-        setIsDeveloper(role === 'developer');
-        return;
-      }
-      
-      // Secondary check: Check user_metadata for developer role
-      if (user.user_metadata?.user_type === 'developer') {
-        console.log("Developer role found in user_metadata");
-        setUserType('developer');
-        setIsDeveloper(true);
-        return;
-      }
-      
-      // Fallback: Check profiles table
-      console.log("No role in metadata, checking profiles table");
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_type')
-        .eq('id', user.id)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching user type:', error);
-        console.log("Default to hospital role due to error");
-        setUserType('hospital'); // Default fallback
-        setIsDeveloper(false);
-        return;
-      }
-      
-      if (data?.user_type) {
-        console.log(`User type from profiles: ${data.user_type}`);
-        setUserType(data.user_type);
-        setIsDeveloper(data.user_type === 'developer');
-        
-        // Optionally: You could sync the user_type to app_metadata.role here
-        // using a server-side function, but that would require additional setup
-      } else {
-        console.log("No user_type in profiles, defaulting to hospital");
-        setUserType('hospital'); // Default fallback
-        setIsDeveloper(false);
-      }
-    } catch (error) {
-      console.error('Error in fetchUserRole:', error);
-      console.log("Default to hospital role due to error");
-      setUserType('hospital'); // Default fallback
-      setIsDeveloper(false);
-    }
-  };
 
   const signIn = async (email, password) => {
     try {
@@ -202,7 +207,7 @@ export function AuthProvider({ children }) {
 
   // Helper to check if current user has developer access
   const hasDevAccess = () => {
-    return isDeveloper || user?.app_metadata?.role === 'developer';
+    return isDeveloper || user?.app_metadata?.role === USER_TYPES.DEVELOPER;
   };
 
   // Helper to check if current user can access a specific dashboard

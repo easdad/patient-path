@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './LandingPage.css';
 import supabase from '../../utils/supabaseClient';
-import { AUTH_CONFIG } from '../../config/auth.config';
+import { SUPABASE_CONFIG } from '../../config/supabase.config';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -12,6 +12,64 @@ const LandingPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Simple function to create a test user for development
+  const registerTestUser = async () => {
+    try {
+      setIsSubmitting(true);
+      setError('');
+      
+      // Get hospital test user from config
+      const testUser = SUPABASE_CONFIG.DEV_TEST_USERS.HOSPITAL;
+      
+      // Check if user already exists
+      // eslint-disable-next-line no-unused-vars
+      const { data: existingUser, error: _checkError } = await supabase.auth.signInWithPassword({
+        email: testUser.email,
+        password: testUser.password
+      });
+      
+      if (existingUser?.user) {
+        console.log('Test user already exists, signing in');
+        setFormData({
+          email: testUser.email,
+          password: testUser.password
+        });
+        // Redirect to dashboard
+        navigate('/hospital-dashboard');
+        return;
+      }
+      
+      // Register the test user
+      const { data, error } = await supabase.auth.signUp({
+        email: testUser.email,
+        password: testUser.password,
+        options: {
+          data: {
+            full_name: 'Test Hospital User',
+            user_type: SUPABASE_CONFIG.USER_TYPES.HOSPITAL
+          }
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      console.log('Test user created successfully:', data);
+      setFormData({
+        email: testUser.email,
+        password: testUser.password
+      });
+      
+      alert(`Test user created! Email: ${testUser.email}, Password: ${testUser.password}`);
+    } catch (err) {
+      console.error('Error creating test user:', err);
+      setError(err.message || 'Failed to create test user');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -64,41 +122,22 @@ const LandingPage = () => {
       console.log('app_metadata:', user.app_metadata);
       console.log('user_metadata:', user.user_metadata);
       
-      // Check for role in app_metadata first (most secure)
-      if (user?.app_metadata?.role === 'developer') {
-        console.log("Developer role detected in app_metadata, redirecting to developer dashboard");
-        navigate('/dev-dashboard');
-        return;
-      }
+      // Get user type to determine which dashboard to navigate to
+      const userType = user.app_metadata?.role || user.user_metadata?.user_type || 'hospital';
       
-      // Check user_metadata (for backward compatibility)
-      const userType = user?.user_metadata?.user_type || 'hospital';
-      
-      console.log(`userType from metadata: ${userType}`);
-      
-      // Route to appropriate dashboard based on user type
-      const dashboardRoute = userType === 'ambulance' 
-        ? '/ambulance-dashboard' 
-        : userType === 'developer'
-          ? '/dev-dashboard'
-          : '/hospital-dashboard';
-          
-      console.log(`User type: ${userType}, redirecting to: ${dashboardRoute}`);
-      navigate(dashboardRoute);
-    } catch (err) {
-      console.error('Authentication error:', err);
-      
-      // Handle specific error cases
-      if (err.message?.includes('Invalid login credentials') || 
-          err.message?.includes('Email not confirmed') ||
-          err.message?.includes('No user')) {
-        setError('Invalid email or password. Please check your credentials or create an account.');
+      // Navigate to the appropriate dashboard based on user type
+      if (userType === SUPABASE_CONFIG.USER_TYPES.HOSPITAL) {
+        navigate('/hospital-dashboard');
+      } else if (userType === SUPABASE_CONFIG.USER_TYPES.AMBULANCE) {
+        navigate('/ambulance-dashboard');
       } else {
-        setError(err.message || 'An error occurred during authentication');
+        // Default to hospital dashboard if user type is not recognized
+        navigate('/hospital-dashboard');
       }
-    }
-    
-    finally {
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.message || 'Failed to sign in. Please check your credentials and try again.');
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -130,6 +169,27 @@ const LandingPage = () => {
       setError(err.message || 'Failed to send password reset email');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Only in development mode - a way to quickly update Supabase credentials
+  const showCredentialsForm = () => {
+    if (process.env.NODE_ENV !== 'development') return;
+    
+    // Only show for development
+    const currentUrl = localStorage.getItem('supabase_url') || SUPABASE_CONFIG.URL;
+    const currentKey = localStorage.getItem('supabase_key') || SUPABASE_CONFIG.ANON_KEY;
+    
+    const newUrl = prompt('Enter Supabase URL:', currentUrl);
+    if (newUrl && newUrl.includes('supabase.co')) {
+      localStorage.setItem('supabase_url', newUrl);
+      
+      const newKey = prompt('Enter Supabase Anon Key:', currentKey);
+      if (newKey && newKey.startsWith('eyJ')) {
+        localStorage.setItem('supabase_key', newKey);
+        alert('Credentials updated! Refresh the page to apply changes.');
+        window.location.reload();
+      }
     }
   };
 
@@ -202,6 +262,18 @@ const LandingPage = () => {
               >
                 {isSubmitting ? 'Processing...' : 'Sign In'}
               </button>
+
+              {process.env.NODE_ENV === 'development' && (
+                <button 
+                  type="button" 
+                  className="auth-button auth-button-secondary"
+                  onClick={registerTestUser}
+                  disabled={isSubmitting}
+                  style={{ marginTop: '10px', backgroundColor: '#6c757d' }}
+                >
+                  Create Test User
+                </button>
+              )}
 
               <div className="forgot-password">
                 <button 
@@ -306,11 +378,31 @@ const LandingPage = () => {
           
           <div className="footer-legal">
             <span>&copy; {new Date().getFullYear()} Patient Path Inc.</span>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
+            <Link to="/privacy-policy">Privacy Policy</Link>
+            <Link to="/terms-of-service">Terms of Service</Link>
           </div>
         </div>
       </footer>
+
+      {/* Development tools - only visible in development mode */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 1000 }}>
+          <button 
+            onClick={showCredentialsForm}
+            style={{ 
+              background: '#333', 
+              color: '#fff', 
+              border: 'none', 
+              padding: '5px 10px', 
+              borderRadius: '4px',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+          >
+            Update Supabase Credentials
+          </button>
+        </div>
+      )}
     </div>
   );
 };
